@@ -1,0 +1,433 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记 | Hexo</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="hnu《软件安全测试》学习笔记 特权程序是操作系统的主要组成部分，没有特权程序，会导致很多简单的事（如修改密码），都变得困难。 但又因这些程序拥有特权，经常称为攻击目标。  一、特权程序的必要性：1、密码困境： linux系统中，用户密码保存在&#x2F;etc&#x2F;shadow文件中，用户修改密码后，新密码应该写入该文件中：    只有shadow所有者root才有读写权限 解决方法：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记">
+<meta property="og:url" content="http://example.com/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="hnu《软件安全测试》学习笔记 特权程序是操作系统的主要组成部分，没有特权程序，会导致很多简单的事（如修改密码），都变得困难。 但又因这些程序拥有特权，经常称为攻击目标。  一、特权程序的必要性：1、密码困境： linux系统中，用户密码保存在&#x2F;etc&#x2F;shadow文件中，用户修改密码后，新密码应该写入该文件中：    只有shadow所有者root才有读写权限 解决方法：">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-10-17T08:47:55.000Z">
+<meta property="article:modified_time" content="2023-10-17T08:56:16.770Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="软件安全测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-17 16:56:16'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-10-17T08:47:55.000Z" title="Created 2023-10-17 16:47:55">2023-10-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-17T08:56:16.770Z" title="Updated 2023-10-17 16:56:16">2023-10-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li>hnu《软件安全测试》学习笔记</li>
+<li>特权程序是操作系统的主要组成部分，没有特权程序，会导致很多简单的事（如修改密码），都变得困难。</li>
+<li>但又因这些程序拥有特权，经常称为攻击目标。</li>
+</ul>
+<h1 id="一、特权程序的必要性："><a href="#一、特权程序的必要性：" class="headerlink" title="一、特权程序的必要性："></a>一、特权程序的必要性：</h1><h2 id="1、密码困境："><a href="#1、密码困境：" class="headerlink" title="1、密码困境："></a>1、密码困境：</h2><ul>
+<li>linux系统中，用户密码保存在&#x2F;etc&#x2F;shadow文件中，用户修改密码后，新密码应该写入该文件中：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310051543812.png" alt="image-20231005154313780"></p>
+<ul>
+<li>只有shadow所有者root才有读写权限</li>
+<li>解决方法：<ul>
+<li>1、修改shadow权限，让所有人可修改：<strong>不安全</strong>，密码可能被其他用户修改</li>
+<li>2、提供修改shadow时的<strong>细粒度</strong>访问控制，即允许非root用户只修改用户自己的密码字段：<ul>
+<li><strong>不支持</strong>，大部分操作系统的访问控制系统，只能在文件级别进行控制。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>大部分操作系统采用简化的两层设计，对于未允许的访问，由<strong>特权级程序提供细粒度的访问控制</strong>：<ul>
+<li>操作系统提供粗粒度的控制，如文件读写执行权限。</li>
+<li>特权级程序提供细粒度控制，如更复杂、与应用相关的控制，利用程序逻辑，实现精细控制。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310051605054.png" alt="image-20231005160503958"></p>
+<h2 id="2、不同的特权程序："><a href="#2、不同的特权程序：" class="headerlink" title="2、不同的特权程序："></a>2、不同的特权程序：</h2><ul>
+<li>特权程序常见的两种形式：守护进程和Set-UID程序。</li>
+<li>守护进程（<strong>daemon</strong>，&#x2F;dimən）：运行在后台的一种特殊进程，独立于控制终端，周期性地执行某种任务或循环等待处理某些事件的发生<ul>
+<li>需要以特权用户(如root)来运行</li>
+<li>可以接收普通用户的特权请求</li>
+<li>由守护进程决定是否&#x2F;如何执行请求</li>
+</ul>
+</li>
+<li>Windows：<ul>
+<li>守护进程被称作服务，服务也是一种运行在后台的进程。服务可以以较高的特权级别运行，由服务控制器管理。</li>
+<li>Windows中还有其他机制，如UAC(用户账户控制)和**”Run as Administrator”**，需要以特权级权限执行某些程序时，会弹出一个确认框，让用户进行确认。</li>
+</ul>
+</li>
+<li>Set-UID机制：<ul>
+<li>采用一个特殊的比特位来标记程序，以告诉操作系统，需要特殊对待这类程序。</li>
+</ul>
+</li>
+<li>Linux&#x2F;Unix系统：<ul>
+<li>广泛采用Set-UID机制。</li>
+<li>也使用守护进程来实现特权程序，特别是在后台运行的系统服务。</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、Set-UID机制："><a href="#二、Set-UID机制：" class="headerlink" title="二、Set-UID机制："></a>二、Set-UID机制：</h1><h2 id="1、Set-UID工作原理："><a href="#1、Set-UID工作原理：" class="headerlink" title="1、Set-UID工作原理："></a>1、Set-UID工作原理：</h2><ul>
+<li>Set-UID程序：<ul>
+<li>使用特殊的比特位标记，告诉操作系统，需要特殊对待这类程序。</li>
+<li>普通用户运行这类程序时，进程会获得特权用户的授权，完成特权操作。</li>
+<li>只能按照预设指令，完成既定的任务。</li>
+</ul>
+</li>
+<li>UNIX系统中，一个进程有三个用户ID，即UID<ul>
+<li>真实(Real)用户ID，RUID：<ul>
+<li>RUID表示进程的创建者或拥有者，是进程的初始用户ID，通常由启动进程的用户确定。</li>
+<li>RUID决定了进程在文件系统上的访问权限，以及一些其他权限和限制。</li>
+</ul>
+</li>
+<li>有效(Effective)用户ID，EUID：<ul>
+<li>决定了进程在运行时的实际权限，<strong>当进程需要执行特权操作时，系统会检查其EUID是否具有执行所需操作的权限。</strong></li>
+<li>EUID可以在进程运行过程中发生变化，以实现权限提升或降低。</li>
+</ul>
+</li>
+<li>保留(Saved)用户ID，SUID：<ul>
+<li>SUID是为了安全而引入的，用于在特权升级和降级过程中保存之前的EUID，以便之后可以<strong>恢复权限</strong>。</li>
+<li>当进程需要执行某个特权操作时，EUID可能会被临时改变，SUID可以用于在操作完成后恢复原始的EUID。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>操作系统对Set-UID程序的区别对待主要体现在进程的用户ID处理</strong><ul>
+<li>对于非Set-UID程序，其RUID和EUID都是运行该程序的用户ID</li>
+<li>对于Set-UID程序，其RUID是程序的执行用户，而EUID则是Set-UID程序的所有者。</li>
+</ul>
+</li>
+<li>查看进程的用户id：</li>
+<li>赋值&#x2F;bin&#x2F;id为myid，并修改为root用户，复制过来后所有者和组都变为当前用户rk</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310051721251.png" alt="image-20231005172109219"></p>
+<ul>
+<li>当前用户rk与myid属于同一个组，有组内执行权限：<ul>
+<li>执行发现，只打印了一个uid为rk，说明进程的RUID和EUID都为rk</li>
+<li>此情况符合非Set-UID程序的执行情况，即RUID和EUID都为执行程序的用户</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310051723955.png" alt="image-20231005172356935"></p>
+<ul>
+<li>更改为Set-UID权限再执行：<ul>
+<li>chmod 4755 myid，其中4是设置Set-UID比特</li>
+<li>执行发现，打印了uid为rk，euid为0，即root</li>
+<li>此情况符合Set-UID程序的执行情况，EUID被设置为程序的所有者</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310051729835.png" alt="image-20231005172916810"></p>
+<h2 id="2、Set-UID的安全性："><a href="#2、Set-UID的安全性：" class="headerlink" title="2、Set-UID的安全性："></a>2、Set-UID的安全性：</h2><ul>
+<li>Set-UID程序的安全，主要取决于程序本身，而非机制，既不能随意的将程序设置为Set-UID程序。</li>
+<li>如&#x2F;bin&#x2F;sh设置Set-UID后，可以执行任意命令，不受限制</li>
+<li>如vi编辑器程序允许用户执行任意外部命令，也不该被设置为Set-UID程序</li>
+</ul>
+<h2 id="3、Set-GID机制："><a href="#3、Set-GID机制：" class="headerlink" title="3、Set-GID机制："></a>3、Set-GID机制：</h2><ul>
+<li>同理，由进程的真实GID，和有效GID，也可以有Set-GID机制。</li>
+<li>具体原理与Set-UID相同。</li>
+</ul>
+<h1 id="三、Set-UID的攻击面："><a href="#三、Set-UID的攻击面：" class="headerlink" title="三、Set-UID的攻击面："></a>三、Set-UID的攻击面：</h1><ul>
+<li>攻击面存在于程序获得输入的地方，如果没有恰当地检验这些输入，可能影响程序的执行。</li>
+<li>通过发现特权程序编写的漏洞，来进行攻击。</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310051744977.png" alt="image-20231005174454902"></p>
+<h2 id="1、用户输入："><a href="#1、用户输入：" class="headerlink" title="1、用户输入："></a>1、用户输入：</h2><ul>
+<li>特权程序可以接收用户输入：<ul>
+<li>输入的数据可能被复制到缓冲区，造成<strong>缓冲区溢出，执行恶意代码</strong>。</li>
+<li>输入的数据被当做<strong>格式化字符串，改变程序行为</strong>。</li>
+</ul>
+</li>
+<li>例子，chsh程序：</li>
+<li>chsh程序是一个允许用户修改自身默认shell的程序，而默认的shell信息保存在&#x2F;etc&#x2F;passwd文件，只有root用户才有修改权限。</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310051754515.png" alt="image-20231005175439491"></p>
+<ul>
+<li>故chsh是root所有的Set-UID程序，chsh接收用户输入的shell名称，并更新在用户的末尾字段。</li>
+<li>但是chsh没有正确检验用户输入，导致用户输入两行数据时，可以替换下一行用户，达到新增root用户的目的</li>
+</ul>
+<h2 id="2、系统输入："><a href="#2、系统输入：" class="headerlink" title="2、系统输入："></a>2、系统输入：</h2><ul>
+<li>特权程序有时会从系统获得输入，如根据文件名从系统处获得目标文件，当这些系统输入可以被用户控制时，可能导致不安全的特权级行为。</li>
+<li>如特权程序需要进行文件修改，但是目标文件被恶意用户控制：<ul>
+<li>程序内容编写为修改&#x2F;tmp&#x2F;xyz文件。（&#x2F;tmp文件夹全局可修改）</li>
+<li>恶意用户建立软连接&#x2F;tmp&#x2F;xyz到&#x2F;etc&#x2F;shadow</li>
+<li>系统为特权程序提供了&#x2F;etc&#x2F;shadow</li>
+<li>恶意用户可以修改&#x2F;etc&#x2F;shadow文件！</li>
+</ul>
+</li>
+</ul>
+<h2 id="3、环境变量："><a href="#3、环境变量：" class="headerlink" title="3、环境变量："></a>3、环境变量：</h2><ul>
+<li>程序的行为实际上会受很多隐藏输入的影响，如环境变量，只看源代码并不能发现这些<strong>“潜在的危险”</strong></li>
+<li>如PATH环境变量<ul>
+<li>c程序可以通过system()函数调用外部命令，如system(“ls”)，调用系统命令ls</li>
+<li>但是并没有明确指出ls命令的路径，所以会有一个从PATH环境变量的路径中寻找ls程序的过程</li>
+<li>用户通过改变PATH环境变量，可以让特权程序运行恶意的ls程序。</li>
+</ul>
+</li>
+</ul>
+<h2 id="4、权限泄露（Capability-Leaking）："><a href="#4、权限泄露（Capability-Leaking）：" class="headerlink" title="4、权限泄露（Capability Leaking）："></a>4、权限泄露（Capability Leaking）：</h2><ul>
+<li><p>一些特权程序，在完成特权操作后，需要抛弃特权（即修改EUID为RUID），变为非特权进程，这样进程才能不受限制。（因为特权程序能进行的操作有限或者预设了）。</p>
+</li>
+<li><p>如果特权程序降权后，没有清除特权级时获得的权限（如打开了特权文件），则之后的非特权进程仍然可以使用这些权限。</p>
+</li>
+<li><p>文件描述符 <code>fd</code> 是一个整数，用来标识已经<strong>打开的文件</strong>或其他<strong>I&#x2F;O资源</strong>的唯一标识符。</p>
+</li>
+<li><p>关于类Unix系统的文件描述符FD（File Descriptor）：</p>
+<ul>
+<li>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/yushuaigee/article/details/107883964">https://blog.csdn.net/yushuaigee/article/details/107883964</a></li>
+<li>Unix系统中一切皆可以看成是文件：<ul>
+<li>文件：普通文件，如文本文件、二进制文件等。</li>
+<li>目录：目录也可以视为一种特殊类型的文件，它包含其他文件和目录的列表。</li>
+<li>设备文件：硬件设备通常在Unix中表示为特殊文件，例如 <code>/dev/sda</code> 可以表示硬盘，<code>/dev/tty1</code> 可以表示终端。</li>
+<li>管道：管道也是一种特殊类型的文件，用于<strong>进程间通信</strong>。</li>
+<li>套接字：套接字也可以看作是文件，用于进程间的网络通信。</li>
+<li>符号链接：符号链接（符号链接）也是文件，它们指向另一个文件或目录。</li>
+</ul>
+</li>
+<li>文件描述符就是内核为了高效管理这些已经被打开的文件而设置的索引。</li>
+<li>文件描述符有三种层次（系统、进程、文件系统），一般都是使用进程级的文件描述符，每个进程都有自己的文件描述符表，<strong>不同进程的文件描述符是独立的</strong>，因为直接使用其他进程的fd，则该fd可能不在当前进程的表中。</li>
+<li>Unix系统的进程默认有三个文件描述符：<ul>
+<li>0，标准输入stdin：用于接收输入的数据，如接收终端输入的键盘数据。</li>
+<li>1，标准输出stdout：用于输出数据，如将程序的运行结果显示在终端上。</li>
+<li>2，标准错误输出stderr：用于输出程序的错误或诊断信息，如输出程序错误到终端。</li>
+</ul>
+</li>
+<li>&#x2F;proc&#x2F;$pid&#x2F;fd目录，保存pid进程的所有fd</li>
+</ul>
+</li>
+<li><p>Windows系统中也有文件描述符的概念，但被称作文件句柄（File Handles），但不是单纯使用一个整型来描述，而是使用了特定的数据结构HANDLE来表示，包含了更多的信息。</p>
+</li>
+<li><p>权限泄露例子：使用Set-UID程序，打开了特权文件，但没有进行关闭就降权，此时非特权进程仍然可以对特权文件操作。</p>
+</li>
+<li><p>创建cap_leak.c文件，内容如下，gcc -o cap_leak cap_leak.c编译，得到cap_leak可执行文件</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span>	<span class="comment">//标准输入输出,printf</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span>	<span class="comment">//标准库函数，exit</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span> <span class="comment">//Unix标准库函数，文件操作和进程操作相关函数，setuid、getuid、execve</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span> <span class="comment">//文件控制函数，文件描述符相关，open</span></span></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">int</span> fd;</span><br><span class="line">    <span class="type">char</span>* v[<span class="number">2</span>];</span><br><span class="line">    fd=open(<span class="string">&quot;zzz&quot;</span>,O_RDWR|O_APPEND);<span class="comment">//打开一个文件，返回文件描述符</span></span><br><span class="line">    <span class="keyword">if</span>(fd==<span class="number">-1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;can not open zzz\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;fd is %d\n&quot;</span>,fd);</span><br><span class="line">    <span class="comment">//close(fd);//降权前应该close</span></span><br><span class="line">    setuid(getuid());<span class="comment">//setuid设置进程的EUID，getuid获取进程的RUID</span></span><br><span class="line">    v[<span class="number">0</span>]=<span class="string">&quot;/bin/sh&quot;</span>;v[<span class="number">1</span>]=<span class="number">0</span>;</span><br><span class="line">    <span class="comment">//执行一个新的程序，参数：char*程序名，char*[]程序命令行参数，cahr*[]环境变量</span></span><br><span class="line">    <span class="comment">//执行的新程序会覆盖旧进程，继承旧进程的设置</span></span><br><span class="line">    execve(v[<span class="number">0</span>],v,<span class="number">0</span>);<span class="comment">//执行sh程序，会启动一个新的shell</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建zzz文件，设置权限为640，所有者为root，从而rk可以读zzz文件，而不能修改zzz文件</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310062001161.png" alt="image-20231006200109137"></p>
+<ul>
+<li>设置cap_leak可执行文件4711，设为Set-UID程序，rk仅有执行权限，并修改own为root：<ul>
+<li><strong>此处应该先修改为root所有，再设置Set-UID</strong></li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310062007407.png" alt="image-20231006200709379"></p>
+<ul>
+<li><p>运行cap_leak，输出了打开zzz的文件描述符是3，并且弹出了一个rk用户的shell，可以输入指令：</p>
+</li>
+<li><p>在弹出的shell中输入：</p>
+<ul>
+<li>echo “write from rk” &gt;&amp; 3<ul>
+<li>&gt;&amp;，当重定向的目标时文件描述符时，需要使用这个重定向符号</li>
+<li>&gt;，一般用于重定向到具体文件</li>
+</ul>
+</li>
+<li>发现rk用户成功在zzz文件中写下内容！</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310062012475.png" alt="image-20231006201259449"></p>
+<h1 id="四、调用其他程序："><a href="#四、调用其他程序：" class="headerlink" title="四、调用其他程序："></a>四、调用其他程序：</h1><ul>
+<li>Set-UID程序调用外部程序时，外部命令应该由程序决定，只要求用户提供对应的参数或者数据。</li>
+</ul>
+<h2 id="1、不安全的调用方式：system"><a href="#1、不安全的调用方式：system" class="headerlink" title="1、不安全的调用方式：system()"></a>1、不安全的调用方式：system()</h2><ul>
+<li>如三、1提到的环境变量问题，不再赘述。</li>
+<li>某Set-UID程序，名为catall，目的是让普通用户能够查看所有文件，但是不能进行修改，代码如下：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#incluude <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">	<span class="type">char</span> *cat=<span class="string">&quot;/bin/cat&quot;</span>; </span><br><span class="line">    <span class="keyword">if</span>(argc&lt;<span class="number">2</span>)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Please type a file name.\n&quot;</span>); </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">char</span> *command =<span class="built_in">malloc</span>(<span class="built_in">strlen</span>(cat)+<span class="built_in">strlen</span>(argv[<span class="number">1</span>])+<span class="number">2</span>);</span><br><span class="line">    <span class="built_in">sprintf</span>(command,<span class="string">&quot;%s %s&quot;</span>,cat, argv[<span class="number">1</span>]);</span><br><span class="line">	<span class="built_in">system</span>(command); </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行逻辑：<ul>
+<li>catall filename，查看test文件</li>
+<li>程序读取输入的filename，然后使用system函数执行&#x2F;bin&#x2F;cat filename命令</li>
+</ul>
+</li>
+<li>man system查看system手册：<ul>
+<li>int execl(“绝对路径”, “标识符”, “需要的参数”（需要多少传入多少） ,NULL);<ul>
+<li>功能：<strong>用某程序重载当前进程</strong></li>
+</ul>
+</li>
+<li>发现system不是直接执行命令（如果直接运行，理论上只当做一条指令且只执行一次），而是先执行&#x2F;bin&#x2F;sh程序，再解析&#x2F;bin&#x2F;sh程序的参数-c command，在新启动的&#x2F;bin&#x2F;sh中执行cmmand</li>
+<li>shell程序更加强大，可以执行两条命令</li>
+<li>如果输入的filename是aa;&#x2F;bin&#x2F;sh，则会解析成两条命令，先执行&#x2F;bin&#x2F;cat aa，再执行&#x2F;bin&#x2F;sh获得root权限的shell</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310062302145.png" alt="image-20231006230233072"></p>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082043919.png" alt="image-20231008204350812"></p>
+<h2 id="2、安全的调用方式：execve"><a href="#2、安全的调用方式：execve" class="headerlink" title="2、安全的调用方式：execve()"></a>2、安全的调用方式：execve()</h2><ul>
+<li>使用execve可以只运行一个指令，不需要调用shell。</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#incluude <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">	<span class="type">char</span> *v[<span class="number">3</span>];</span><br><span class="line">    <span class="keyword">if</span>(argc&lt;<span class="number">2</span>)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Please type a file name.\n&quot;</span>); </span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	v[<span class="number">0</span>]=<span class="string">&quot;/bin/cat&quot;</span>;v[<span class="number">1</span>]=argv[<span class="number">1</span>];v[<span class="number">2</span>]=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>execve(运行的指令,指令的参数,环境变量)<ul>
+<li>直接向操作系统请求执行指令，而不是通过shell程序</li>
+<li>指令的参数被当做整体</li>
+</ul>
+</li>
+</ul>
+<h2 id="3、隔离的原则："><a href="#3、隔离的原则：" class="headerlink" title="3、隔离的原则："></a>3、隔离的原则：</h2><ul>
+<li><strong>数据与代码分离原则</strong>：数据与代码应该清晰地分开<ul>
+<li>即如果输入是当做数据来使用，它应该严格地被当做数据，不该作为代码</li>
+</ul>
+</li>
+<li>system函数便违背了这一原则</li>
+<li></li>
+</ul>
+<h1 id="五、最小特权原则："><a href="#五、最小特权原则：" class="headerlink" title="五、最小特权原则："></a>五、最小特权原则：</h1><ul>
+<li>最小特权原则：系统的每个程序和特权用户应该以完成任务所需的最小权限进行操作。</li>
+<li>但是Set-UID程序违背了这一原则，因为Set-UID程序被给予了所有特权权限，而不是部分。</li>
+<li>安卓系统就是典型的最小特权原则：<ul>
+<li>最新的Android系统把权限细分成几十种小权限，如位置信息、相机权限等，需要使用时申请，不用时立即撤销。</li>
+</ul>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/">http://example.com/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/">软件安全测试</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/09/22/XSS%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB/" title="XSS跨站脚本攻击"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">XSS跨站脚本攻击</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F%E7%9A%84%E5%BF%85%E8%A6%81%E6%80%A7%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">一、特权程序的必要性：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%AF%86%E7%A0%81%E5%9B%B0%E5%A2%83%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">1、密码困境：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E4%B8%8D%E5%90%8C%E7%9A%84%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F%EF%BC%9A"><span class="toc-number">1.2.</span> <span class="toc-text">2、不同的特权程序：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Set-UID%E6%9C%BA%E5%88%B6%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">二、Set-UID机制：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81Set-UID%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">1、Set-UID工作原理：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Set-UID%E7%9A%84%E5%AE%89%E5%85%A8%E6%80%A7%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">2、Set-UID的安全性：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81Set-GID%E6%9C%BA%E5%88%B6%EF%BC%9A"><span class="toc-number">2.3.</span> <span class="toc-text">3、Set-GID机制：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81Set-UID%E7%9A%84%E6%94%BB%E5%87%BB%E9%9D%A2%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">三、Set-UID的攻击面：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5%EF%BC%9A"><span class="toc-number">3.1.</span> <span class="toc-text">1、用户输入：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%B3%BB%E7%BB%9F%E8%BE%93%E5%85%A5%EF%BC%9A"><span class="toc-number">3.2.</span> <span class="toc-text">2、系统输入：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">3.3.</span> <span class="toc-text">3、环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%9D%83%E9%99%90%E6%B3%84%E9%9C%B2%EF%BC%88Capability-Leaking%EF%BC%89%EF%BC%9A"><span class="toc-number">3.4.</span> <span class="toc-text">4、权限泄露（Capability Leaking）：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%B0%83%E7%94%A8%E5%85%B6%E4%BB%96%E7%A8%8B%E5%BA%8F%EF%BC%9A"><span class="toc-number">4.</span> <span class="toc-text">四、调用其他程序：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9Asystem"><span class="toc-number">4.1.</span> <span class="toc-text">1、不安全的调用方式：system()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%AE%89%E5%85%A8%E7%9A%84%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9Aexecve"><span class="toc-number">4.2.</span> <span class="toc-text">2、安全的调用方式：execve()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E9%9A%94%E7%A6%BB%E7%9A%84%E5%8E%9F%E5%88%99%EF%BC%9A"><span class="toc-number">4.3.</span> <span class="toc-text">3、隔离的原则：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9C%80%E5%B0%8F%E7%89%B9%E6%9D%83%E5%8E%9F%E5%88%99%EF%BC%9A"><span class="toc-number">5.</span> <span class="toc-text">五、最小特权原则：</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</a><time datetime="2023-10-17T08:47:55.000Z" title="Created 2023-10-17 16:47:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/22/XSS%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB/" title="XSS跨站脚本攻击">XSS跨站脚本攻击</a><time datetime="2023-09-22T12:41:40.000Z" title="Created 2023-09-22 20:41:40">2023-09-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/22/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" title="文件上传">文件上传</a><time datetime="2023-09-22T12:22:11.000Z" title="Created 2023-09-22 20:22:11">2023-09-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/16/2022%E5%90%B4%E6%81%A9%E8%BE%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0C1W1Lab01%E5%AE%9E%E9%AA%8C/" title="Jupyter Notebook打开ipynb文件报错File Load Error、Unhandled Error的玄学解决">Jupyter Notebook打开ipynb文件报错File Load Error、Unhandled Error的玄学解决</a><time datetime="2023-09-16T10:50:22.000Z" title="Created 2023-09-16 18:50:22">2023-09-16</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/14/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/" title="sql注入">sql注入</a><time datetime="2023-09-14T09:59:02.000Z" title="Created 2023-09-14 17:59:02">2023-09-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
