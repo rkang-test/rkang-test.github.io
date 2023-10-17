@@ -53,7 +53,7 @@
   isHome: true,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2023-10-17 17:02:53'
+  postUpdate: '2023-10-17 17:10:28'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -157,7 +157,92 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Hexo</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量">02_《计算机安全导论：深度实践》第二章环境变量</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></span></div><div class="content">
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Hexo</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验">03_Lab02《计算机安全导论：深度实践》ShellShock实验</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></span></div><div class="content">
+hnu《软件安全测试》学习笔记
+
+一、概述：
+https://seedsecuritylabs.org/Labs_20.04/Files/Shellshock/Shellshock.pdf
+实验主题：
+Shellshock
+Environment variables
+Function definition in bash
+Apache and CGI programs
+
+
+实验环境：
+Seed Ubuntu 20.04 VM
+
+
+
+二、实验环境配置：1、DNS配置：
+web 服务器的IP地址是10.9.0.80（根据实际变动），服务器主机的名称为www.seedlab-shellshock.com
+为了能正确访问www.seedlab-shellshock.com，需要修改/etc/hosts配置文件
+
+110.9.0.80 www.seedlab-shellshock.com
+
+
+sudo vim &#x2F;etc&#x2F;hosts发现已经配置好了
+
+
+2、docker-compose：
+下载这个lab的Labsetup.zip
+
+
+
+因为某些docker-compose指令 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock">03_《计算机安全导论：深度实践》第三章ShellShock</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></span></div><div class="content">
+hnu《软件安全测试》学习笔记
+
+一、背景知识：shell函数1、shell命令解释器：
+shell程序有两种概念，一种命令解释器，一种指shell脚本。
+命令解释器是交互式命令行解释器，允许用户与操作系统进行交互，执行命令，管理文件系统，启动程序等。
+shell脚本是由shell脚本语言编写，由命令解释器解释执行的文本文件。
+
+
+有多种命令解释器：
+Bourne Shell (sh)：
+1979年创建，是Unix的原始Shell。
+具有基本的命令解释功能，但功能有限，不常用。
+
+
+C Shell (csh)：
+20世纪80年代初创建。
+使用C语言风格的语法，包括C风格的控制结构。
+提供了更多的交互性和可用性。
+
+
+Korn Shell (ksh)：
+由David Korn创建，首次发布于1983年。
+Ksh结合了sh和csh的特点，提供了更多的功能和可用性。
+主要用于商业环境和一些大型Unix系统。
+
+
+Bourne Again Shell (bash)：
+1989年创建。
+Bash是Bourne Shell的增强版本，是目前大多数Linux系统的默认Shell，最常用。
+具有丰富 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time></span></div><div class="content">
+hnu《软件安全测试》实验一
+https://seedsecuritylabs.org/Labs_20.04/Software/
+https://seedsecuritylabs.org/Labs_20.04/Files/Environment_Variable_and_SetUID/Environment_Variable_and_SetUID.pdf
+lab1包含第一章和第二章，第一章已经讲完，可以安装虚拟机，把课堂上的程序都试一下
+
+一、概述：
+实验部分：
+
+
+
+实验知识：教材前两章
+
+实验环境：官方提供的Ubuntu20.04
+
+下载官方的压缩包SEED-Ubuntu20.04.zip，解压到D:&#x2F;VirtualMachine
+是一个VirtualBox的.vdi文件，不是VMware可识别的文件，选择安装VirtualBox
+用户名seed，密码dees
+注：root密码不知，可以直接sudo passwd root，可以直接改root密码，
+
+
+安装VirtualBox：
+
+官网https://www.virtualbox.org/wiki/Downloads， ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量">02_《计算机安全导论：深度实践》第二章环境变量</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></span></div><div class="content">
 hnu《软件安全测试》学习笔记
 
 一、环境变量：1、基础：
@@ -366,42 +451,4 @@ HC-05蓝牙串口模块（蓝牙2.0）
 
 注意：本教程只针对经典蓝牙（传统蓝牙），观看前请核对自己的需求！！！
 
-</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/09/12/%E6%B5%8B%E8%AF%95%E5%8D%9A%E5%AE%A2/" title="测试博客">测试博客</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-09-12T09:51:25.000Z" title="Created 2023-09-12 17:51:25">2023-09-12</time></span></div><div class="content"></div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/09/12/007_machine_sau/" title="hackthebox靶场Sau打靶记录">hackthebox靶场Sau打靶记录</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-09-12T09:51:25.000Z" title="Created 2023-09-12 17:51:25">2023-09-12</time></span></div><div class="content">
-靶场hackthebox Sau，地址：https://app.hackthebox.com/machines/Sau
-此博客并非write up，只是记录以下我的打靶过程，也会有错误的操作，所以不建议不看内容，直接复制命令执行。但因为是记录过程，所以相关图文可能会更加详细，可能对你有所帮助。
-
-一、前期探测
-开启靶机，靶机ip：10.10.11.224
-
-
-
-
-nmap端口发现： nmap -p- --min-rate 5000 10.10.11.224
-
-发现22，55555端口
-
-
-
-
-
-nmap针对扫描：nmap -p 22,55555 -sC -sV --min-rate 5000 10.10.11.224
-
-22端口ssh服务。
-
-55555端口，浏览器访问，发现是web服务。
-
-
-
-
-
-浏览器访问55555端口：
-
-
-
-界面显示Request Baskets，版本是1.2.1 。
-
-搜索发现Request Baskets是rbaskets开源的一个Web服务，用于收集任意 HTTP 请求并通过 RESTful API 或简单的 Web UI 检查它们。
-
-
-
-同时发现漏 ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量">02_《计算机安全导论：深度实践》第二章环境变量</a><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</a><time datetime="2023-10-17T08:47:55.000Z" title="Created 2023-10-17 16:47:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/22/XSS%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB/" title="XSS跨站脚本攻击">XSS跨站脚本攻击</a><time datetime="2023-09-22T12:41:40.000Z" title="Created 2023-09-22 20:41:40">2023-09-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/22/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" title="文件上传">文件上传</a><time datetime="2023-09-22T12:22:11.000Z" title="Created 2023-09-22 20:22:11">2023-09-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/09/16/2022%E5%90%B4%E6%81%A9%E8%BE%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0C1W1Lab01%E5%AE%9E%E9%AA%8C/" title="Jupyter Notebook打开ipynb文件报错File Load Error、Unhandled Error的玄学解决">Jupyter Notebook打开ipynb文件报错File Load Error、Unhandled Error的玄学解决</a><time datetime="2023-09-16T10:50:22.000Z" title="Created 2023-09-16 18:50:22">2023-09-16</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/" style="font-size: 1.1em; color: #999">软件安全测试</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/10/"><span class="card-archive-list-date">October 2023</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/09/"><span class="card-archive-list-date">September 2023</span><span class="card-archive-list-count">7</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">9</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-10-17T09:02:53.655Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验">03_Lab02《计算机安全导论：深度实践》ShellShock实验</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock">03_《计算机安全导论：深度实践》第三章ShellShock</a><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</a><time datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量">02_《计算机安全导论：深度实践》第二章环境变量</a><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</a><time datetime="2023-10-17T08:47:55.000Z" title="Created 2023-10-17 16:47:55">2023-10-17</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/" style="font-size: 1.1em; color: #999">软件安全测试</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/10/"><span class="card-archive-list-date">October 2023</span><span class="card-archive-list-count">5</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/09/"><span class="card-archive-list-date">September 2023</span><span class="card-archive-list-count">7</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">12</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-10-17T09:10:28.207Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

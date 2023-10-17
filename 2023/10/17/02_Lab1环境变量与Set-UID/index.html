@@ -1,0 +1,449 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验 | Hexo</title><meta name="author" content="John Doe"><meta name="copyright" content="John Doe"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="hnu《软件安全测试》实验一 https:&#x2F;&#x2F;seedsecuritylabs.org&#x2F;Labs_20.04&#x2F;Software&#x2F; https:&#x2F;&#x2F;seedsecuritylabs.org&#x2F;Labs_20.04&#x2F;Files&#x2F;Environment_Variable_and_SetUID&#x2F;Environment_Variable_and_SetUID.pdf lab1包含第一章和第二章，第一章已经讲">
+<meta property="og:type" content="article">
+<meta property="og:title" content="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验">
+<meta property="og:url" content="http://example.com/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="hnu《软件安全测试》实验一 https:&#x2F;&#x2F;seedsecuritylabs.org&#x2F;Labs_20.04&#x2F;Software&#x2F; https:&#x2F;&#x2F;seedsecuritylabs.org&#x2F;Labs_20.04&#x2F;Files&#x2F;Environment_Variable_and_SetUID&#x2F;Environment_Variable_and_SetUID.pdf lab1包含第一章和第二章，第一章已经讲">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-10-17T09:06:55.000Z">
+<meta property="article:modified_time" content="2023-10-17T09:07:30.918Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="软件安全测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-17 17:07:30'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-17T09:07:30.918Z" title="Updated 2023-10-17 17:07:30">2023-10-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><ul>
+<li>hnu《软件安全测试》实验一</li>
+<li><a target="_blank" rel="noopener" href="https://seedsecuritylabs.org/Labs_20.04/Software/">https://seedsecuritylabs.org/Labs_20.04/Software/</a></li>
+<li><a target="_blank" rel="noopener" href="https://seedsecuritylabs.org/Labs_20.04/Files/Environment_Variable_and_SetUID/Environment_Variable_and_SetUID.pdf">https://seedsecuritylabs.org/Labs_20.04/Files/Environment_Variable_and_SetUID/Environment_Variable_and_SetUID.pdf</a></li>
+<li>lab1包含第一章和第二章，第一章已经讲完，可以安装虚拟机，把课堂上的程序都试一下</li>
+</ul>
+<h1 id="一、概述："><a href="#一、概述：" class="headerlink" title="一、概述："></a>一、概述：</h1><ul>
+<li>实验部分：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310081700743.png" alt="image-20231008170012680"></p>
+<ul>
+<li><p>实验知识：教材前两章</p>
+</li>
+<li><p>实验环境：官方提供的Ubuntu20.04</p>
+<ul>
+<li>下载官方的压缩包SEED-Ubuntu20.04.zip，解压到D:&#x2F;VirtualMachine</li>
+<li>是一个VirtualBox的.vdi文件，不是VMware可识别的文件，选择安装VirtualBox</li>
+<li>用户名seed，密码dees</li>
+<li>注：root密码不知，可以直接sudo passwd root，可以直接改root密码，</li>
+</ul>
+</li>
+<li><p>安装VirtualBox：</p>
+<ul>
+<li>官网<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads%EF%BC%8C%E4%B8%8B%E8%BD%BD7.0.1%E7%9A%84exe%E5%AE%89%E8%A3%85%E6%96%87%E4%BB%B6">https://www.virtualbox.org/wiki/Downloads，下载7.0.1的exe安装文件</a></li>
+<li>运行，选择安装路径：D:\VirtualBox\</li>
+<li>之后不同确认，直到安装成功</li>
+</ul>
+</li>
+<li><p>VirtualBox创建虚拟机：</p>
+<ul>
+<li>参考<a target="_blank" rel="noopener" href="https://github.com/seed-labs/seed-labs/blob/master/manuals/vm/seedvm-manual.md">https://github.com/seed-labs/seed-labs/blob/master/manuals/vm/seedvm-manual.md</a></li>
+<li>点击新建，文件夹选择之前解压出vdi的D:\VirtualMachine\SEED-Ubuntu20.04，并选择系统类型</li>
+<li>设置内存大小2GB，设置虚匿硬盘，选择解压出的vdi文件</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310081753435.png" alt="image-20231008175330397"></p>
+<ul>
+<li>最后点击完成，成功创建</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310081754955.png" alt="image-20231008175425927"></p>
+<ul>
+<li>右键虚拟机：<ul>
+<li>启动双向的复制粘贴</li>
+<li>提升处理器数量为2</li>
+<li>提升显存大小为58MB</li>
+<li>网络为NAT</li>
+</ul>
+</li>
+<li>启动虚拟机，拍个快照</li>
+<li>退出虚拟机时，一般使用保存状态，可以更快开机</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、任务"><a href="#二、任务" class="headerlink" title="二、任务"></a>二、任务</h1><h2 id="1、使用环境变量："><a href="#1、使用环境变量：" class="headerlink" title="1、使用环境变量："></a>1、使用环境变量：</h2><ul>
+<li><p>使用seed用户</p>
+</li>
+<li><p>打印环境变量：</p>
+<ul>
+<li>printenv</li>
+<li>env</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310081910644.png" alt="image-20231008191042607"></p>
+</li>
+<li><p>使用export和unset来定义或者解除环境变量，这两个不是单独的程序，而是shell内置命令</p>
+<ul>
+<li>export foo&#x3D;”myEnv”，定义一个名为foo的环境变量，如果没有export是声明一个shell变量（可以尝试两种定义，发现只有export，env才有foo）</li>
+<li>env|grep foo，查看环境变量是否存在</li>
+<li>unset foo，解除</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310081912471.png" alt="image-20231008191228446"></p>
+</li>
+</ul>
+<h2 id="2、父子进程的环境变量："><a href="#2、父子进程的环境变量：" class="headerlink" title="2、父子进程的环境变量："></a>2、父子进程的环境变量：</h2><ul>
+<li>弄清楚子进程是否继承父进程的环境变量</li>
+<li>新建myprintenv.c，再编译成myprint，运行并将结果保存在file</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">char</span> **environ;</span><br><span class="line"><span class="type">void</span> <span class="title function_">printenv</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span> (environ[i] != <span class="literal">NULL</span>) &#123;</span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, environ[i]);</span><br><span class="line">     i++;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">pid_t</span> childPid;</span><br><span class="line">  <span class="keyword">switch</span>(childPid = fork()) &#123;<span class="comment">//新建子进程，父进程返回子进程pid，子进程返回0</span></span><br><span class="line">    <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">      printenv();    </span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">default</span>: </span><br><span class="line">      <span class="comment">//printenv();</span></span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>gcc -o myprintenv myprintenv.c，两次编译分别注释父子进程的printenv，两次运行，运行结果保存到childEnv和parentEnv</p>
+</li>
+<li><p>使用diff指令比较childEnv和parentEnv，发现没有不同之处</p>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310081956536.png" alt="image-20231008195623508"></p>
+<ul>
+<li>说明子进程继承父进程的环境变量</li>
+</ul>
+<h2 id="3、execve与环境变量："><a href="#3、execve与环境变量：" class="headerlink" title="3、execve与环境变量："></a>3、execve与环境变量：</h2><ul>
+<li>execve(运行的指令,指令的参数,环境变量)<ul>
+<li>直接向操作系统请求执行指令，而不是通过shell程序</li>
+<li>指令的参数被当做整体</li>
+</ul>
+</li>
+<li>新建myenv.c：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">char</span> **environ;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> *argv[<span class="number">2</span>];</span><br><span class="line">  argv[<span class="number">0</span>] = <span class="string">&quot;/usr/bin/env&quot;</span>;</span><br><span class="line">  argv[<span class="number">1</span>] = <span class="literal">NULL</span>;</span><br><span class="line">  execve(<span class="string">&quot;/usr/bin/env&quot;</span>, argv, <span class="literal">NULL</span>);<span class="comment">//载入/usr/bin/env程序，指令参数，无环境变量</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编译运行，发现没有输出，说明加载的env程序没有输出环境变量，即当前进程没有环境变量</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082002618.png" alt="image-20231008200242596"></p>
+<ul>
+<li>修改execve的第三个参数为environ，输出了环境变量</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082004205.png" alt="image-20231008200433177"></p>
+<ul>
+<li>当使用execve时，新进程的环境变量由第三个参数决定</li>
+</ul>
+<h2 id="4、system与环境变量："><a href="#4、system与环境变量：" class="headerlink" title="4、system与环境变量："></a>4、system与环境变量：</h2><ul>
+<li>system(“command”)实际上执行：<ul>
+<li>int execl(“&#x2F;bin&#x2F;sh”, “标识符”, “-c”,command ,NULL);</li>
+<li>system不是直接执行命令，而是先执行&#x2F;bin&#x2F;sh程序，在新启动的&#x2F;bin&#x2F;sh中执行cmmand</li>
+<li><strong>环境变量传递给了新进程</strong></li>
+</ul>
+</li>
+<li>新建mysystemenv.c，编译运行，发现输出了环境变量</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    system(<span class="string">&quot;/usr/bin/env&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span> ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082014945.png" alt="image-20231008201437915"></p>
+<h2 id="5、Set-UID与环境变量："><a href="#5、Set-UID与环境变量：" class="headerlink" title="5、Set-UID与环境变量："></a>5、Set-UID与环境变量：</h2><ul>
+<li>明白Set-UID是否继承用户进程的环境变量</li>
+<li>新建myfoo.c，打印进程的环境变量，编译得到myfoo</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">char</span> **environ;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (environ[i] != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, environ[i]);</span><br><span class="line">    	i++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设为root权限的Set-UID程序</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082023341.png" alt="image-20231008202315311"></p>
+<ul>
+<li>修改环境变量：PATH、LD_LIBRARY_PATH、ANY</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082028688.png" alt="image-20231008202853661"></p>
+<ul>
+<li>运行myfoo程序，发现PATH和ANY被传递给Set-UID程序，而LD_LIBRARY_PATH没有</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082030120.png" alt="image-20231008203021093"></p>
+<h2 id="6、Set-UID与PATH环境变量："><a href="#6、Set-UID与PATH环境变量：" class="headerlink" title="6、Set-UID与PATH环境变量："></a>6、Set-UID与PATH环境变量：</h2><ul>
+<li><p>目标：让Set-UID调用恶意程序，获得root权限</p>
+</li>
+<li><p>新建myls.c，使用system调用ls程序：</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	system(<span class="string">&quot;ls&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置myls为root的Set-UID程序：</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082039814.png" alt="image-20231008203931786"></p>
+<ul>
+<li>在&#x2F;home&#x2F;seed目录下伪造ls程序：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改PATH：<ul>
+<li>export PATH&#x3D;&#x2F;home&#x2F;seed:$PATH</li>
+</ul>
+</li>
+<li>因为Ubuntu20.04中，&#x2F;bin&#x2F;sh实际指向&#x2F;bin&#x2F;dash，这个shell检测到RUID与EUID不一致会主动降权，为了实验效果，将&#x2F;bin&#x2F;sh链接到无保护措施的&#x2F;bin&#x2F;zsh：<ul>
+<li>sudo ln -sf &#x2F;bin&#x2F;zsh &#x2F;bin&#x2F;sh</li>
+<li><strong>实验结束后执行：sudo ln -sf &#x2F;bin&#x2F;dash &#x2F;bin&#x2F;sh</strong></li>
+</ul>
+</li>
+<li>运行myls成功提权到root</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082051936.png" alt="image-20231008205137902"></p>
+<h2 id="7、Set-UID与LD-PRELOAD环境变量："><a href="#7、Set-UID与LD-PRELOAD环境变量：" class="headerlink" title="7、Set-UID与LD_PRELOAD环境变量："></a>7、Set-UID与LD_PRELOAD环境变量：</h2><ul>
+<li><p>制作动态库：</p>
+<ul>
+<li>新建notsleep.c，有一个sleep函数（出错语原因，sleep写为了main），目的是重写c标准库libc的sleep函数</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">sleep</span><span class="params">()</span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;I am not sleeping\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>生成动态库mylib.so<ul>
+<li>&#x2F;&#x2F;gcc -shared -o notsleep.so notsleep.c，无效果&#x2F;&#x2F;又发现notsleep.c中的sleep设置成了main，导致无效</li>
+<li>&#x2F;&#x2F;gcc -fPIC -g -c notsleep.c，生成notsleep.o</li>
+<li>&#x2F;&#x2F;gcc -shared -o notsleep.so.1.0.1 notsleep.o -lc，生成notsleep.so.1.0.1</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082111117.png" alt="image-20231008211124093"></p>
+</li>
+<li><p>设置LD_PRELOAD为.&#x2F;notsleep.so.1.0.1</p>
+</li>
+<li><p>新建sleep.c测试sleep函数：</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    sleep(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>sleep是普通权限，执行，使用了LD_PRELOAD</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082118996.png" alt="image-20231008211847967"></p>
+<ul>
+<li>设置sleep为root的Set-UID</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082121626.png" alt="image-20231008212118599"></p>
+<ul>
+<li>再普通用户执行sleep，没有使用LD_PRELOAD</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082121631.png" alt="image-20231008212159607"></p>
+<ul>
+<li>在root账户export LD_PRELOAD，再次执行<ul>
+<li>切换到root用户，刚开始使用su root，要输入密码，输入找到的seed ubuntu12的密码seedubuntu，发现出错</li>
+<li>最后直接sudo su root，切换成功</li>
+<li>设置后在root的shell中执行，LD_PRELOAD有效</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082137861.png" alt="image-20231008213704831"></p>
+<ul>
+<li>新建用户foo，进行测试，再使用seed账户调用，发现LD_PRELOAD未使用</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082142485.png" alt="image-20231008214225456"></p>
+<ul>
+<li>总结：<ul>
+<li>普通程序不对LD_PRELOAD检查</li>
+<li>Set-UID程序是否使用LD_PRELOAD环境变量，取决于RUID与EUID</li>
+</ul>
+</li>
+</ul>
+<h2 id="8、调用外部程序："><a href="#8、调用外部程序：" class="headerlink" title="8、调用外部程序："></a>8、调用外部程序：</h2><ul>
+<li>catall.c，使用system或者execve<ul>
+<li>catall filename，查看filename文件</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> *v[<span class="number">3</span>];</span><br><span class="line">  <span class="type">char</span> *command;</span><br><span class="line">  <span class="keyword">if</span>(argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Please type a file name.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  v[<span class="number">0</span>] = <span class="string">&quot;/bin/cat&quot;</span>; v[<span class="number">1</span>] = argv[<span class="number">1</span>]; v[<span class="number">2</span>] = <span class="literal">NULL</span>;</span><br><span class="line">  command = <span class="built_in">malloc</span>(<span class="built_in">strlen</span>(v[<span class="number">0</span>]) + <span class="built_in">strlen</span>(v[<span class="number">1</span>]) + <span class="number">2</span>);<span class="comment">//分配长度</span></span><br><span class="line">  <span class="built_in">sprintf</span>(command, <span class="string">&quot;%s %s&quot;</span>, v[<span class="number">0</span>], v[<span class="number">1</span>]);<span class="comment">//赋值给command，即/bin/cat filname</span></span><br><span class="line">  <span class="comment">// Use only one of the followings.</span></span><br><span class="line">  system(command);</span><br><span class="line">  <span class="comment">// execve(v[0], v, NULL);</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span> ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编译为catallSystem，并设为Set-UID程序</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082213141.png" alt="image-20231008221326106"></p>
+<ul>
+<li>注释掉system，启用execve，再次编译得到catallExecve，并设为Set-UID程序</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082215531.png" alt="image-20231008221507497"></p>
+<ul>
+<li>使用catallSystem攻击：<ul>
+<li>只需要在catallSystem的filname参数中加上;，就可以在shell中<strong>执行多个命令</strong></li>
+<li>catallSystem aa;&#x2F;bin&#x2F;sh，该指令先执行&#x2F;bin&#x2F;cat aa发现aa不存在，再执行&#x2F;bin&#x2F;sh启动shell</li>
+<li>因为默认&#x2F;bin&#x2F;sh指向&#x2F;bin&#x2F;dash，有该shell有保护机制，自动将Set-UID程序降权为seed，所以只获得了seed的shell</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082232446.png" alt="image-20231008223211415"></p>
+<ul>
+<li>使用catallExecve攻击：<ul>
+<li>只能执行一条命令，即时加上;分割，也会识别成一个参数</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082231803.png" alt="image-20231008223123775"></p>
+<h2 id="9、权限泄露："><a href="#9、权限泄露：" class="headerlink" title="9、权限泄露："></a>9、权限泄露：</h2><ul>
+<li>创建cap_leak.c文件，内容如下，gcc -o cap_leak cap_leak.c编译，得到cap_leak可执行文件</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span>	<span class="comment">//标准输入输出,printf</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span>	<span class="comment">//标准库函数，exit</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;unistd.h&gt;</span> <span class="comment">//Unix标准库函数，文件操作和进程操作相关函数，setuid、getuid、execve</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;fcntl.h&gt;</span> <span class="comment">//文件控制函数，文件描述符相关，open</span></span></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">int</span> fd;</span><br><span class="line">    <span class="type">char</span>* v[<span class="number">2</span>];</span><br><span class="line">    fd=open(<span class="string">&quot;zzz&quot;</span>,O_RDWR|O_APPEND);<span class="comment">//打开一个文件，返回文件描述符</span></span><br><span class="line">    <span class="keyword">if</span>(fd==<span class="number">-1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;can not open zzz\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;fd is %d\n&quot;</span>,fd);</span><br><span class="line">    <span class="comment">//close(fd);//降权前应该close</span></span><br><span class="line">    setuid(getuid());<span class="comment">//setuid设置进程的EUID，getuid获取进程的RUID</span></span><br><span class="line">    v[<span class="number">0</span>]=<span class="string">&quot;/bin/sh&quot;</span>;v[<span class="number">1</span>]=<span class="number">0</span>;</span><br><span class="line">    <span class="comment">//执行一个新的程序，参数：char*程序名，char*[]程序命令行参数，cahr*[]环境变量</span></span><br><span class="line">    <span class="comment">//执行的新程序会覆盖旧进程，继承旧进程的设置</span></span><br><span class="line">    execve(v[<span class="number">0</span>],v,<span class="number">0</span>);<span class="comment">//执行sh程序，会启动一个新的shell</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建zzz文件，设置权限为640，所有者为root，从而rk可以读zzz文件，而不能修改zzz文件</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082238757.png" alt="image-20231008223831724"></p>
+<ul>
+<li>设置cap_leak可执行文件4711，设为Set-UID程序，seed仅有执行权限</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082241072.png"></p>
+<ul>
+<li><p>运行cap_leak，输出了打开zzz的文件描述符是3，并且弹出了一个seed用户的shell，可以输入指令：</p>
+</li>
+<li><p>在弹出的shell中输入：</p>
+<ul>
+<li>echo “write from seed” &gt;&amp; 3<ul>
+<li>&gt;&amp;，当重定向的目标时文件描述符时，需要使用这个重定向符号</li>
+<li>&gt;，一般用于重定向到具体文件</li>
+</ul>
+</li>
+<li>发现seed用户成功在zzz文件中写下内容！</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://rkang-blog-pictures.oss-cn-fuzhou.aliyuncs.com/blog_pictures/202310082242192.png" alt="image-20231008224225161"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://example.com">John Doe</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/">http://example.com/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/">软件安全测试</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">03_《计算机安全导论：深度实践》第三章ShellShock</div></div></a></div><div class="next-post pull-right"><a href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">02_《计算机安全导论：深度实践》第二章环境变量</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</div></div></a></div><div><a href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">02_《计算机安全导论：深度实践》第二章环境变量</div></div></a></div><div><a href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">03_Lab02《计算机安全导论：深度实践》ShellShock实验</div></div></a></div><div><a href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-17</div><div class="title">03_《计算机安全导论：深度实践》第三章ShellShock</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">一、概述：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.</span> <span class="toc-text">二、任务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BD%BF%E7%94%A8%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">1、使用环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%88%B6%E5%AD%90%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">2、父子进程的环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81execve%E4%B8%8E%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">2.3.</span> <span class="toc-text">3、execve与环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81system%E4%B8%8E%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">2.4.</span> <span class="toc-text">4、system与环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81Set-UID%E4%B8%8E%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">2.5.</span> <span class="toc-text">5、Set-UID与环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81Set-UID%E4%B8%8EPATH%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">2.6.</span> <span class="toc-text">6、Set-UID与PATH环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7%E3%80%81Set-UID%E4%B8%8ELD-PRELOAD%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%EF%BC%9A"><span class="toc-number">2.7.</span> <span class="toc-text">7、Set-UID与LD_PRELOAD环境变量：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8%E3%80%81%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9A"><span class="toc-number">2.8.</span> <span class="toc-text">8、调用外部程序：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9%E3%80%81%E6%9D%83%E9%99%90%E6%B3%84%E9%9C%B2%EF%BC%9A"><span class="toc-number">2.9.</span> <span class="toc-text">9、权限泄露：</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShockAttack/" title="03_Lab02《计算机安全导论：深度实践》ShellShock实验">03_Lab02《计算机安全导论：深度实践》ShellShock实验</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="03_《计算机安全导论：深度实践》第三章ShellShock">03_《计算机安全导论：深度实践》第三章ShellShock</a><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验">02_Lab1《计算机安全导论：深度实践》环境变量与Set-UID实验</a><time datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="02_《计算机安全导论：深度实践》第二章环境变量">02_《计算机安全导论：深度实践》第二章环境变量</a><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/01-Set-UID%E7%89%B9%E6%9D%83%E7%A8%8B%E5%BA%8F/" title="《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记">《计算机安全导论：深度实践》第一章Set-UID特权程序学习笔记</a><time datetime="2023-10-17T08:47:55.000Z" title="Created 2023-10-17 16:47:55">2023-10-17</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
