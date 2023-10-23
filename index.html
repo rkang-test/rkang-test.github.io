@@ -53,7 +53,7 @@
   isHome: true,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2023-10-17 22:30:31'
+  postUpdate: '2023-10-23 20:15:22'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -157,7 +157,54 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Hexo</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/03_ShellShockAttack/" title="Lab02《计算机安全导论：深度实践》ShellShock实验">Lab02《计算机安全导论：深度实践》ShellShock实验</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></span></div><div class="content">
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Hexo"><span class="site-name">Hexo</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Hexo</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/23/04_Lab3ShellCode%E7%94%9F%E6%88%90/" title="Lab03补充《计算机安全导论：深度实践》ShellCode实验">Lab03补充《计算机安全导论：深度实践》ShellCode实验</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-23T12:10:55.000Z" title="Created 2023-10-23 20:10:55">2023-10-23</time></span></div><div class="content">一、概述：
+实验手册：https://seedsecuritylabs.org/Labs_20.04/Files/Shellcode/Shellcode.pdf
+
+实验主题：
+
+Shellcode
+Assembly code
+Disassembling
+
+
+实验环境：Ubuntu20.04
+
+编写shellcode的困难
+
+困难一：shellcode中不能出现整个字节都是0
+困难二：如何获取数据的地址
+解决一：在执行时将数据入栈，通过esp获得
+解决二：将数据存入代码区，然后使用call调用，返回数据地址并入栈
+
+
+
+
+
+二、任务一：编写shellcode1、整个流程：
+汇编代码mysh.s
+
+12345678910111213141516171819202122section .text  global _start    _start:      ; Store the argument string on stack      xor  eax, eax       push eax          ; Use 0 to terminate the string      pu ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/04_Lab3%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/" title="Lab03《计算机安全导论：深度实践》缓冲区溢出实验">Lab03《计算机安全导论：深度实践》缓冲区溢出实验</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T12:15:55.000Z" title="Created 2023-10-17 20:15:55">2023-10-17</time></span></div><div class="content">一、概述：
+实验手册：https://seedsecuritylabs.org/Labs_20.04/Files/Buffer_Overflow_Setuid/Buffer_Overflow_Setuid.pdf
+
+实验主题：
+
+Buffer overflow vulnerability and attack
+Stack layout
+Address randomization, non-executable stack, and StackGuard
+Shellcode (32-bit and 64-bit)
+The return-to-libc attack, which aims at defeating the non-executable stack countermeasure, is coveredin a separate lab.
+
+
+实验环境：SEED Ubuntu 20.04 VM.
+
+
+二、环境设置：
+关闭操作系统的地址空间随机化：
+
+1sudo sysctl -w kernel.randomize_va_space=0
+
+
+配置&#x2F;bin&#x2F;s ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/10/17/03_ShellShockAttack/" title="Lab02《计算机安全导论：深度实践》ShellShock实验">Lab02《计算机安全导论：深度实践》ShellShock实验</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></span></div><div class="content">
 hnu《软件安全测试》学习笔记
 
 一、概述：
@@ -407,52 +454,4 @@ linux系统中，用户密码保存在&#x2F;etc&#x2F;shadow文件中，用户修
 1AddType application/x-httpd-php .php .phtml .phps .php5 .pht
 
 
-说明 phps,php5 ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/09/16/2022%E5%90%B4%E6%81%A9%E8%BE%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0C1W1Lab01%E5%AE%9E%E9%AA%8C/" title="Jupyter Notebook打开ipynb文件报错File Load Error、Unhandled Error的玄学解决">Jupyter Notebook打开ipynb文件报错File Load Error、Unhandled Error的玄学解决</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-09-16T10:50:22.000Z" title="Created 2023-09-16 18:50:22">2023-09-16</time></span></div><div class="content">
-最近刚开始学吴恩达2022的机器学习课程，学到了C1W1的Lab01实验，实验环境是Jupyter Notebook，于是便自己下载了一个Jupyter Notebook。
-环境准备好之后，便直接git clone在github上整理好了的课程资源：https://github.com/kaieye/2022-Machine-Learning-Specialization
-项目结构如下：2022-Machine-xxx是总文件夹
-
-
-
-
-week1文件夹下是每节课程的作业，slides文件夹下是课件，work文件夹下，则是每节课程可能引用的图片。
-
-第2节课下即是本篇博客的主角**.ipynb文件**
-
-我首先是直接在最顶级目录myJupyter下的cmd输入jupyter notebook启动环境，然后一路点击，最后点击上面的Lab01的ipynb文件，结果在闪现了一秒文件内容后，报错：File Load Error for xxx.ipynb Unhandled error
-
-
-
-
-直接搜索这个报错，发现貌似没人出现过这个情况，测试了其他的ipynb文件，发现只要是引用了图片的i ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2023/09/14/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/" title="sql注入">sql注入</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2023-09-14T09:59:02.000Z" title="Created 2023-09-14 17:59:02">2023-09-14</time></span></div><div class="content">
-很久没碰渗透测试了，趁着复习的机会，顺便整理一下以前的笔记。
-首先是SQL注入相关的内容。
-
-一、SQL注入基础：1、注入类型：
-数字型：select * from table where id&#x3D;$id;
-
-?id&#x3D;3 and 1&#x3D;2 –+
-
-
-字符型：select * from table where name&#x3D;’$name’;
-
-?id&#x3D;3’ and 1&#x3D;2 –+
-
-
-搜索型：select * from user where username like ‘%$name%’ order by password
-
-?name&#x3D;3%’ and 1&#x3D;2 –+
-
-
-
-2、注入点位置：
-GET:
-
-url中，?id&#x3D;
-
-
-POST:
-
-普通型：请求体中,key1&#x3D;val1&amp;key2&#x3D;val2
-JSON型：JavaScript Object Notation
-会在请求头中标明：Content-Type:application&#x2F;json;charset&#x3D;utf ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShockAttack/" title="Lab02《计算机安全导论：深度实践》ShellShock实验">Lab02《计算机安全导论：深度实践》ShellShock实验</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/04_%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/" title="《计算机安全导论：深度实践》第四章缓冲区溢出">《计算机安全导论：深度实践》第四章缓冲区溢出</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="《计算机安全导论：深度实践》第三章ShellShock">《计算机安全导论：深度实践》第三章ShellShock</a><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02_Lab1%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E4%B8%8ESet-UID/" title="Lab01《计算机安全导论：深度实践》环境变量与Set-UID实验">Lab01《计算机安全导论：深度实践》环境变量与Set-UID实验</a><time datetime="2023-10-17T09:06:55.000Z" title="Created 2023-10-17 17:06:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/02-%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="《计算机安全导论：深度实践》第二章环境变量">《计算机安全导论：深度实践》第二章环境变量</a><time datetime="2023-10-17T08:59:30.000Z" title="Created 2023-10-17 16:59:30">2023-10-17</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/web%E5%AE%89%E5%85%A8/" style="font-size: 1.3em; color: #99a1ac">web安全</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 1.1em; color: #999">机器学习</a> <a href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" style="font-size: 1.1em; color: #999">渗透测试</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/" style="font-size: 1.5em; color: #99a9bf">软件安全测试</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/10/"><span class="card-archive-list-date">October 2023</span><span class="card-archive-list-count">6</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/09/"><span class="card-archive-list-date">September 2023</span><span class="card-archive-list-count">6</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">12</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-10-17T14:30:31.798Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+说明 phps,php5 ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">John Doe</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/23/04_Lab3ShellCode%E7%94%9F%E6%88%90/" title="Lab03补充《计算机安全导论：深度实践》ShellCode实验">Lab03补充《计算机安全导论：深度实践》ShellCode实验</a><time datetime="2023-10-23T12:10:55.000Z" title="Created 2023-10-23 20:10:55">2023-10-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/04_Lab3%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/" title="Lab03《计算机安全导论：深度实践》缓冲区溢出实验">Lab03《计算机安全导论：深度实践》缓冲区溢出实验</a><time datetime="2023-10-17T12:15:55.000Z" title="Created 2023-10-17 20:15:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShockAttack/" title="Lab02《计算机安全导论：深度实践》ShellShock实验">Lab02《计算机安全导论：深度实践》ShellShock实验</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/04_%E7%BC%93%E5%86%B2%E5%8C%BA%E6%BA%A2%E5%87%BA/" title="《计算机安全导论：深度实践》第四章缓冲区溢出">《计算机安全导论：深度实践》第四章缓冲区溢出</a><time datetime="2023-10-17T09:10:55.000Z" title="Created 2023-10-17 17:10:55">2023-10-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/10/17/03_ShellShock%E6%94%BB%E5%87%BB/" title="《计算机安全导论：深度实践》第三章ShellShock">《计算机安全导论：深度实践》第三章ShellShock</a><time datetime="2023-10-17T09:08:55.000Z" title="Created 2023-10-17 17:08:55">2023-10-17</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/" style="font-size: 1.5em; color: #99a9bf">软件安全测试</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 1.1em; color: #999">机器学习</a> <a href="/tags/web%E5%AE%89%E5%85%A8/" style="font-size: 1.3em; color: #99a1ac">web安全</a> <a href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" style="font-size: 1.1em; color: #999">渗透测试</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/10/"><span class="card-archive-list-date">October 2023</span><span class="card-archive-list-count">8</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/09/"><span class="card-archive-list-date">September 2023</span><span class="card-archive-list-count">6</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">14</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2023-10-23T12:15:22.894Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By John Doe</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
